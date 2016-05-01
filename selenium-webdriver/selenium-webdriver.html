@@ -1,0 +1,629 @@
+<script type="text/x-red" data-template-name="open-web">
+	<div class="form-row">
+	<label for="node-input-server"><i class="fa fa-globe"></i> <span>Server</span></label>
+	<input type="text" id="node-input-server">
+	</div>
+	<div class="form-row">
+	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
+	<input type="text" id="node-input-name">
+	</div>
+	<div class="form-row">
+	<label for="node-input-weburl"><i class="fa fa-globe"></i> <span>Web URL</span></label>
+	<input type="text" id="node-input-weburl">
+	</div>
+	<div class="form-row">
+	<label for="node-input-webtitle"><i class="fa fa-globe"></i> <span>Web Title</span></label>
+	<input type="text" id="node-input-webtitle">
+	</div>
+	<div class="form-row">
+	<label for="node-input-webtimeout"><i class="fa fa-globe"></i> <span>Timeout</span></label>
+	<input type="text" id="node-input-webtimeout">
+	</div>
+</script>
+
+<script type="text/x-red" data-help-name="open-web">
+	<p>Create an instance of selenium webdriver and connect to the Selenium Server when an event is triggered.</p>
+</script>
+
+<script type="text/javascript">
+	RED.nodes.registerType('open-web', {
+		category : 'selenium',
+		defaults : {
+			name : {
+				value : ""
+			},
+			weburl : {
+				value : "https://www.google.com/",
+				required : true
+			},
+			webtitle : {
+				value : "Google"
+			},
+			webtimeout : {
+				value : 3000,
+				required : true,
+				validate : RED.validators.number()
+			},
+			server : {
+				type : "selenium-server",
+				required : true
+			}
+		},
+		color : "#d8bfd8",
+		inputs : 1,
+		outputs : 1,
+		icon : "white-globe.png",
+		label : function() {
+			return this.name || this.topic || "Open URL";
+		},
+		labelStyle : function() {
+			return this.name ? "node_label_italic" : "";
+		}
+	}); 
+</script>
+
+<script type="text/x-red" data-template-name="close-web">
+	<div class="form-row">
+	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
+	<input type="text" id="node-input-name">
+	</div>
+</script>
+
+<script type="text/x-red" data-help-name="close-web">
+	<p>Create an instance of selenium webdriver and connect to the Selenium Server when an event is triggered.</p>
+</script>
+
+<script type="text/javascript">
+	RED.nodes.registerType('close-web', {
+		category : 'selenium',
+		defaults : {
+			name : {
+				value : ""
+			}
+		},
+		color : "#d8bfd8",
+		inputs : 1,
+		outputs : 1,
+		icon : "white-globe.png",
+		label : function() {
+			return this.name || "Close";
+		},
+		labelStyle : function() {
+			return this.name ? "node_label_italic" : "";
+		}
+	}); 
+</script>
+
+<script type="text/x-red" data-template-name="find-object">
+	<div class="form-row">
+	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
+	<input type="text" id="node-input-name">
+	</div>
+	<div class="form-row">
+	<label for="node-input-selector"><i class="fa fa-empire"></i> <span>By</span></label>
+	<select id="node-input-selector" style="width:125px !important">
+	<option value="id">id</option>
+	<option value="name">name</option>
+	<option value="link">link</option>
+	<option value="xpath">xpath</option>
+	<option value="tagName">tagName</option>
+	<option value="className">className</option>
+	<option value="linkText">linkText</option>
+	<option value="cssSelector">cssSelector</option>
+	</select>
+	</div>
+	<div class="form-row">
+	<label for="node-input-text"><i class="fa fa-empire"></i> <span>Value</span></label>
+	<input type="text" id="node-input-text">
+	</div>
+</script>
+
+<script type="text/x-red" data-help-name="find-object">
+	<p>Find an object or element by using selenium webdriver findElement().</p>
+</script>
+
+<script type="text/javascript">
+	RED.nodes.registerType('find-object', {
+		category : 'selenium',
+		defaults : {
+			name : {
+				value : ""
+			},
+			selector : {
+				value : "", required: true
+			},
+			text : {
+				value : "", required: true
+			}
+		},
+		color : "#d8bfd8",
+		inputs : 1,
+		outputs : 1,
+		icon : "debug.png",
+		label : function() {
+			return this.name || "Find Element";
+		},
+		labelStyle : function() {
+			return this.name ? "node_label_italic" : "";
+		}
+	}); 
+</script>
+
+<script type="text/x-red" data-template-name="send-keys">
+	<div class="form-row">
+	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
+	<input type="text" id="node-input-name">
+	</div>
+	<div class="form-row">
+	<label for="node-input-text"><i class="fa fa-empire"></i> <span>Value</span></label>
+	<input type="text" id="node-input-text">
+	</div>
+</script>
+
+<script type="text/x-red" data-help-name="send-keys">
+	<p>Send keyboard keys to a specific element from previous node.</p>
+</script>
+
+<script type="text/javascript">
+	RED.nodes.registerType('send-keys', {
+		category : 'selenium',
+		defaults : {
+			name : {
+				value : ""
+			},
+			text : {
+				value : "", required: true
+			},
+		},
+		color : "#d8bfd8",
+		inputs : 1,
+		outputs : 1,
+		icon : "debug.png",
+		label : function() {
+			return this.name || "Send Keys";
+		},
+		labelStyle : function() {
+			return this.name ? "node_label_italic" : "";
+		}
+	}); 
+</script>
+
+<script type="text/x-red" data-template-name="click-on">
+	<div class="form-row">
+	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
+	<input type="text" id="node-input-name">
+	</div>
+</script>
+
+<script type="text/x-red" data-help-name="click-on">
+	<p>Click on an element which is determined by previous node.</p>
+</script>
+
+<script type="text/javascript">
+	RED.nodes.registerType('click-on', {
+		category : 'selenium',
+		defaults : {
+			name : {
+				value : ""
+			}
+		},
+		color : "#d8bfd8",
+		inputs : 1,
+		outputs : 1,
+		icon : "debug.png",
+		label : function() {
+			return this.name || "Click On";
+		},
+		labelStyle : function() {
+			return this.name ? "node_label_italic" : "";
+		}
+	}); 
+</script>
+
+<script type="text/x-red" data-template-name="set-value">
+	<div class="form-row">
+	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
+	<input type="text" id="node-input-name">
+	</div>
+</script>
+
+<script type="text/x-red" data-help-name="set-value">
+	<p>Set a value to a specific element from previous node.</p>
+</script>
+
+<script type="text/javascript">
+	RED.nodes.registerType('set-value', {
+		category : 'selenium',
+		defaults : {
+			name : {
+				value : ""
+			}
+		},
+		color : "#d8bfd8",
+		inputs : 1,
+		outputs : 1,
+		icon : "debug.png",
+		label : function() {
+			return this.name || "Set Value";
+		},
+		labelStyle : function() {
+			return this.name ? "node_label_italic" : "";
+		}
+	}); 
+</script>
+
+<script type="text/x-red" data-template-name="get-value">
+	<div class="form-row">
+	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
+	<input type="text" id="node-input-name">
+	</div>
+</script>
+
+<script type="text/x-red" data-help-name="get-value">
+	<p>Get a value to a specific element from previous node.</p>
+</script>
+
+<script type="text/javascript">
+	RED.nodes.registerType('get-value', {
+		category : 'selenium',
+		defaults : {
+			name : {
+				value : ""
+			}
+		},
+		color : "#d8bfd8",
+		inputs : 1,
+		outputs : 1,
+		icon : "debug.png",
+		label : function() {
+			return this.name || "Get Value";
+		},
+		labelStyle : function() {
+			return this.name ? "node_label_italic" : "";
+		}
+	}); 
+</script>
+
+<script type="text/x-red" data-template-name="get-text">
+	<div class="form-row">
+	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
+	<input type="text" id="node-input-name">
+	</div>
+</script>
+
+<script type="text/x-red" data-help-name="get-text">
+	<p>Set the text of an element from previous node.</p>
+</script>
+
+<script type="text/javascript">
+	RED.nodes.registerType('get-text', {
+		category : 'selenium',
+		defaults : {
+			name : {
+				value : ""
+			}
+		},
+		color : "#d8bfd8",
+		inputs : 1,
+		outputs : 1,
+		icon : "debug.png",
+		label : function() {
+			return this.name || "Get Text";
+		},
+		labelStyle : function() {
+			return this.name ? "node_label_italic" : "";
+		}
+	}); 
+</script>
+
+<script type="text/x-red" data-template-name="screenshot">
+	<div class="form-row">
+	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
+	<input type="text" id="node-input-name">
+	</div>
+</script>
+
+<script type="text/x-red" data-help-name="screenshot">
+	<p>Schedule a command to take a screenshot.</p>
+</script>
+
+<script type="text/javascript">
+	RED.nodes.registerType('screenshot', {
+		category : 'selenium',
+		defaults : {
+			name : {
+				value : ""
+			}
+		},
+		color : "#d8bfd8",
+		inputs : 1,
+		outputs : 1,
+		icon : "debug.png",
+		label : function() {
+			return this.name || "Screenshot";
+		},
+		labelStyle : function() {
+			return this.name ? "node_label_italic" : "";
+		}
+	}); 
+</script>
+
+
+<script type="text/x-red" data-template-name="nav-to">
+	<div class="form-row">
+	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
+	<input type="text" id="node-input-name">
+	</div>
+	<div class="form-row">
+	<label for="node-input-url"><i class="fa fa-globe"></i> <span>URL</span></label>
+	<input type="text" id="node-input-url">
+	</div>
+</script>
+
+<script type="text/x-red" data-help-name="nav-to">
+	<p>Schedules a command to navigate to a new URL.</p>
+</script>
+
+<script type="text/javascript">
+	RED.nodes.registerType('nav-to', {
+		category : 'selenium',
+		defaults : {
+			name : {
+				value : ""
+			},
+			url : {
+				value : "", required: true
+			}
+		},
+		color : "#d8bfd8",
+		inputs : 1,
+		outputs : 1,
+		icon : "debug.png",
+		label : function() {
+			return this.name || "Go to";
+		},
+		labelStyle : function() {
+			return this.name ? "node_label_italic" : "";
+		}
+	}); 
+</script>
+
+
+<script type="text/x-red" data-template-name="nav-back">
+	<div class="form-row">
+	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
+	<input type="text" id="node-input-name">
+	</div>
+</script>
+
+<script type="text/x-red" data-help-name="nav-back">
+	<p>Schedules a command to navigate back to previous page.</p>
+</script>
+
+<script type="text/javascript">
+	RED.nodes.registerType('nav-back', {
+		category : 'selenium',
+		defaults : {
+			name : {
+				value : ""
+			}
+		},
+		color : "#d8bfd8",
+		inputs : 1,
+		outputs : 1,
+		icon : "debug.png",
+		label : function() {
+			return this.name || "Back";
+		},
+		labelStyle : function() {
+			return this.name ? "node_label_italic" : "";
+		}
+	}); 
+</script>
+
+<script type="text/x-red" data-template-name="nav-forward">
+	<div class="form-row">
+	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
+	<input type="text" id="node-input-name">
+	</div>
+</script>
+
+<script type="text/x-red" data-help-name="nav-forward">
+	<p>Schedules a command to navigate forward to next page.</p>
+</script>
+
+<script type="text/javascript">
+	RED.nodes.registerType('nav-forward', {
+		category : 'selenium',
+		defaults : {
+			name : {
+				value : ""
+			}
+		},
+		color : "#d8bfd8",
+		inputs : 1,
+		outputs : 1,
+		icon : "debug.png",
+		label : function() {
+			return this.name || "Forward";
+		},
+		labelStyle : function() {
+			return this.name ? "node_label_italic" : "";
+		}
+	}); 
+</script>
+
+
+<script type="text/x-red" data-template-name="nav-refresh">
+	<div class="form-row">
+	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
+	<input type="text" id="node-input-name">
+	</div>
+</script>
+
+<script type="text/x-red" data-help-name="nav-refresh">
+	<p>Schedules a command to navigate forward to next page.</p>
+</script>
+
+<script type="text/javascript">
+	RED.nodes.registerType('nav-refresh', {
+		category : 'selenium',
+		defaults : {
+			name : {
+				value : ""
+			}
+		},
+		color : "#d8bfd8",
+		inputs : 1,
+		outputs : 1,
+		icon : "debug.png",
+		label : function() {
+			return this.name || "Refresh";
+		},
+		labelStyle : function() {
+			return this.name ? "node_label_italic" : "";
+		}
+	}); 
+</script>
+
+<script type="text/x-red" data-template-name="run-script">
+	<div class="form-row">
+	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
+	<input type="text" id="node-input-name">
+	</div>
+	<div class="form-row" style="margin-bottom: 0px;">
+        <label for="node-input-func"><i class="fa fa-wrench"></i> <span data-i18n="function.label.function"></span></label>
+        <input type="hidden" id="node-input-func" autofocus="autofocus">
+        <input type="hidden" id="node-input-noerr">
+    </div>
+    <div class="form-row node-text-editor-row">
+        <div style="height: 250px;" class="node-text-editor" id="node-input-func-editor" ></div>
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="run-script">
+	<p>Schedules a command to execute JavaScript in the context of the currently selected frame or window.</p>
+</script>
+
+<script type="text/javascript">
+	RED.nodes.registerType('run-script', {
+		category : 'selenium',
+		defaults : {
+			name : {
+				value : ""
+			},
+			func: { value:"\nreturn arguments[0].innerHTML;" },
+		},
+		color : "#d8bfd8",
+		inputs : 1,
+		outputs : 1,
+		icon : "debug.png",
+		label : function() {
+			return this.name || "Run Script";
+		},
+		labelStyle : function() {
+			return this.name ? "node_label_italic" : "";
+		},
+		oneditprepare: function() {
+            var that = this;            
+            function functionDialogResize() {
+                var rows = $("#dialog-form>div:not(.node-text-editor-row)");
+                var height = $("#dialog-form").height();
+                for (var i=0;i<rows.size();i++) {
+                    height -= $(rows[i]).outerHeight(true);
+                }
+                var editorRow = $("#dialog-form>div.node-text-editor-row");
+                height -= (parseInt(editorRow.css("marginTop"))+parseInt(editorRow.css("marginBottom")));
+                $(".node-text-editor").css("height",height+"px");
+                that.editor.resize();
+            }
+            $( "#dialog" ).on("dialogresize", functionDialogResize);
+            $( "#dialog" ).one("dialogopen", function(ev) {
+                var size = $( "#dialog" ).dialog('option','sizeCache-function');
+                if (size) {
+                    $("#dialog").dialog('option','width',size.width);
+                    $("#dialog").dialog('option','height',size.height);
+                    functionDialogResize();
+                }
+            });
+            $( "#dialog" ).one("dialogclose", function(ev,ui) {
+                var height = $( "#dialog" ).dialog('option','height');
+                $( "#dialog" ).off("dialogresize",functionDialogResize);
+            });
+
+            this.editor = RED.editor.createEditor({
+                id: 'node-input-func-editor',
+                mode: 'ace/mode/javascript',
+                value: $("#node-input-func").val()
+            });
+            this.editor.focus();
+        },
+        oneditsave: function() {
+            var annot = this.editor.getSession().getAnnotations();
+            this.noerr = 0;
+            $("#node-input-noerr").val(0);
+            for (var k=0; k < annot.length; k++) {
+                //console.log(annot[k].type,":",annot[k].text, "on line", annot[k].row);
+                if (annot[k].type === "error") {
+                    $("#node-input-noerr").val(annot.length);
+                    this.noerr = annot.length;
+                }
+            }
+            $("#node-input-func").val(this.editor.getValue());
+            delete this.editor;
+        }
+	}); 
+</script>
+
+<script type="text/x-red" data-template-name="selenium-server">
+	<div class="form-row">
+	<ul style="background: #fff; min-width: 600px; margin-bottom: 20px;" id="node-config-selenium-server-tabs"></ul>
+	</div>
+	<div id="node-config-selenium-server-tabs-content" style="min-height: 170px;">
+	<div id="selenium-server-tab-connection" style="display:none">
+	<div class="form-row node-input-remoteurl">
+	<label for="node-config-input-remoteurl"><i class="fa fa-globe"></i> <span>Remote Url</span></label>
+	<input class="input-append-left" type="text" id="node-config-input-remoteurl" placeholder="http://localhost:4444/wd/hub" style="width: 40%;" >
+	</div>
+	<div class="form-row">
+	<label for="node-config-input-browser"><i class="fa fa-tag"></i> <span>Browser</span></label>
+	<input type="text" id="node-config-input-browser">
+	</div>
+	</div>
+	</div>
+</script>
+
+<script type="text/javascript">
+	RED.nodes.registerType('selenium-server', {
+		category : 'config',
+		defaults : {
+			remoteurl : {
+				value : "http://localhost:4444/wd/hub",
+				required : true
+			},
+			browser : {
+				value : "chrome",
+				required : true
+			}
+		},
+		label : function() {
+			return (this.remoteurl ? this.remoteurl : "localhost@4444");
+		},
+		oneditprepare : function() {
+			var tabs = RED.tabs.create({
+				id : "node-config-selenium-server-tabs",
+				onchange : function(tab) {
+					$("#node-config-selenium-server-tabs-content").children().hide();
+					$("#" + tab.id).show();
+				}
+			});
+			tabs.addTab({
+				id : "selenium-server-tab-connection",
+				label : this._("mqtt.tabs-label.connection")
+			});
+			setTimeout(function() {
+				tabs.resize();
+			}, 0);
+		}
+	}); 
+</script>
