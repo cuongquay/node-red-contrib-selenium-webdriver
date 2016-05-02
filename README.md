@@ -21,7 +21,7 @@ webdriver-manager start
 
 npm install -g --unsafe-perm node-red
 
-npm install -g node-red-contrib-selenium-webdriver
+cd /usr/local/lib/node_modules/node-red/nodes && npm install node-red-contrib-selenium-webdriver
 
 **Example flow**
 
