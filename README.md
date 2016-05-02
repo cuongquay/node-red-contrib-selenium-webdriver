@@ -17,9 +17,10 @@ By default, the selenium server will run on http://localhost:4444/wd/hub.
 
 webdriver-manager start
 
-**Install Node-RED nodes**
+**Install Node-RED and nodes**
 
-cd ~/.node-red/nodes/ && npm install node-red-contrib-selenium-webdriver
+npm install -g --unsafe-perm node-red
+npm install -g node-red-contrib-selenium-webdriver
 
 **Example flow**
 
