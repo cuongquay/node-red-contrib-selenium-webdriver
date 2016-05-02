@@ -1,5 +1,5 @@
 {
-	"name": "node-red-node-selenium-webdriver",
+	"name": "node-red-contrib-selenium-webdriver",
 	"version": "0.0.5",
 	"description": "A selenium-webdriver node for Node-RED",
 	"dependencies": {

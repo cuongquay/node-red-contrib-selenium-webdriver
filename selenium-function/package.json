@@ -1,5 +1,5 @@
 {
-    "name"          : "node-red-node-selenium-function",
+    "name"          : "node-red-contrib-selenium-function",
     "version"       : "0.0.1",
     "description"   : "A selenium-webdriver function node for Node-RED",
     "dependencies"  : {
