@@ -28,7 +28,7 @@ npm install node-red-node-selenium-webdriver
 ```
 **Demo Screenshot**
 
-![Demo](/images/demo.png)
+![Demo](https://raw.githubusercontent.com/cuongquay/node-red-contrib-selenium-webdriver/master/images/demo.png)
 
 *For your contribution, please visit:*
 
