@@ -1,20 +1,25 @@
 {
-    "name"          : "node-red-node-selenium-webdriver",
-    "version"       : "0.0.4",
-    "description"   : "A selenium-webdriver node for Node-RED",
-    "dependencies"  : {
-    	"selenium-webdriver": ">=2.53.2",
-    	"is-reachable" : ">=1.3.0"
-    },
-    "license": "Apache-2.0",
-    "keywords": [ "node-red", "selenium-webdriver" ],
-    "node-red"      : {
-        "nodes"     : {
-            "selenium-webdriver": "selenium-webdriver.js"
-        }
-    },
-    "author": {
-        "name": "DUONG Dinh Cuong",
-        "email": "cuong3ihut@gmail.com"
-    }
+	"name": "node-red-node-selenium-webdriver",
+	"version": "0.0.5",
+	"description": "A selenium-webdriver node for Node-RED",
+	"dependencies": {
+		"selenium-webdriver": ">=2.53.2",
+		"is-reachable": ">=1.3.0"
+	},
+	"license": "Apache-2.0",
+	"keywords": ["node-red", "selenium-webdriver"],
+	"node-red": {
+		"nodes": {
+			"selenium-webdriver": "selenium-webdriver.js"
+		}
+	},
+	"repository": {
+		"type": "git"
+		,
+		"url": "https://github.com/cuongquay/node-red-contrib-selenium-webdriver"
+	},
+	"author": {
+		"name": "DUONG Dinh Cuong",
+		"email": "cuong3ihut@gmail.com"
+	}
 }
