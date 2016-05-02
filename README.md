@@ -19,7 +19,7 @@ webdriver-manager start
 
 **Install Node-RED nodes**
 
-cd ~/.node-red/nodes/ && npm install node-red-node-selenium-webdriver
+cd ~/.node-red/nodes/ && npm install node-red-contrib-selenium-webdriver
 
 **Example flow**
 
