@@ -6,6 +6,7 @@ The Node-RED selenium webdriver node which allow to create selenium test flow by
 npm install -g webdriver-manager
 
 **Setting up a Selenium Server**
+
 Prior to starting the selenium server, download the selenium server jar and driver binaries. By default it will download the selenium server jar and chromedriver binary.
 
 webdriver-manager update
