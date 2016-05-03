@@ -257,6 +257,10 @@
 	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
 	<input type="text" id="node-input-name">
 	</div>
+	<div class="form-row">
+	<label for="node-input-expected"><i class="fa fa-globe"></i> <span>Expected</span></label>
+	<input type="text" id="node-input-expected">
+	</div>
 </script>
 
 <script type="text/x-red" data-help-name="get-value">
@@ -268,6 +272,9 @@
 		category : 'selenium',
 		defaults : {
 			name : {
+				value : ""
+			},
+			expected : {
 				value : ""
 			}
 		},
@@ -289,6 +296,10 @@
 	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
 	<input type="text" id="node-input-name">
 	</div>
+	<div class="form-row">
+	<label for="node-input-expected"><i class="fa fa-globe"></i> <span>Expected</span></label>
+	<input type="text" id="node-input-expected">
+	</div>
 </script>
 
 <script type="text/x-red" data-help-name="get-text">
@@ -300,6 +311,9 @@
 		category : 'selenium',
 		defaults : {
 			name : {
+				value : ""
+			},
+			expected : {
 				value : ""
 			}
 		},
