@@ -24,6 +24,10 @@ module.exports = function(RED) {
 	    until = webdriver.until;
 	var isUtf8 = require('is-utf8');
 
+	function getAbsoluteXPath(driver, element) {
+		return driver.executeScript("function absoluteXPath(element) {" + "var comp, comps = [];" + "var parent = null;" + "var xpath = '';" + "var getPos = function(element) {" + "var position = 1, curNode;" + "if (element.nodeType == Node.ATTRIBUTE_NODE) {" + "return null;" + "}" + "for (curNode = element.previousSibling; curNode; curNode = curNode.previousSibling){" + "if (curNode.nodeName == element.nodeName) {" + "++position;" + "}" + "}" + "return position;" + "};" + "if (element instanceof Document) {" + "return '/';" + "}" + "for (; element && !(element instanceof Document); element = element.nodeType == Node.ATTRIBUTE_NODE ? element.ownerElement : element.parentNode) {" + "comp = comps[comps.length] = {};" + "switch (element.nodeType) {" + "case Node.TEXT_NODE:" + "comp.name = 'text()';" + "break;" + "case Node.ATTRIBUTE_NODE:" + "comp.name = '@' + element.nodeName;" + "break;" + "case Node.PROCESSING_INSTRUCTION_NODE:" + "comp.name = 'processing-instruction()';" + "break;" + "case Node.COMMENT_NODE:" + "comp.name = 'comment()';" + "break;" + "case Node.ELEMENT_NODE:" + "comp.name = element.nodeName;" + "break;" + "}" + "comp.position = getPos(element);" + "}" + "for (var i = comps.length - 1; i >= 0; i--) {" + "comp = comps[i];" + "xpath += '/' + comp.name.toLowerCase();" + "if (comp.position !== null) {" + "xpath += '[' + comp.position + ']';" + "}" + "}" + "return xpath;" + "} return absoluteXPath(arguments[0]);", element);
+	}
+
 	function SeleniumServerSetup(n) {
 		RED.nodes.createNode(this, n);
 
@@ -184,8 +188,9 @@ module.exports = function(RED) {
 		});
 	}
 
+
 	RED.nodes.registerType("find-object", SeleniumFindElementNode);
-	
+
 	function SeleniumSendKeysNode(n) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
@@ -193,10 +198,11 @@ module.exports = function(RED) {
 		var node = this;
 		this.on("input", function(msg) {
 			msg.element.sendKeys(node.keys).then(function() {
-				node.send(msg);	
+				node.send(msg);
 			});
 		});
 	}
+
 
 	RED.nodes.registerType("send-keys", SeleniumSendKeysNode);
 
@@ -206,14 +212,14 @@ module.exports = function(RED) {
 		var node = this;
 		this.on("input", function(msg) {
 			msg.element.click().then(function() {
-				node.send(msg);	
+				node.send(msg);
 			});
 		});
 	}
 
 
 	RED.nodes.registerType("click-on", SeleniumClickOnNode);
-	
+
 	function SeleniumSetValueNode(n) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
@@ -221,55 +227,71 @@ module.exports = function(RED) {
 		var node = this;
 		this.on("input", function(msg) {
 			msg.driver.executeScript("arguments[0].setAttribute('value', '" + node.value + "')", msg.element).then(function() {
-				node.send(msg);	
+				node.send(msg);
 			});
 		});
 	}
+
 
 	RED.nodes.registerType("set-value", SeleniumSetValueNode);
 
 	function SeleniumGetValueNode(n) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
+		this.expected = n.expected;
 		var node = this;
 		this.on("input", function(msg) {
 			msg.element.getAttribute("value").then(function(text) {
 				msg.payload = text;
-				node.send(msg);	
+				if (node.expected && node.expected != "") {
+					if (!msg.errors) {
+						msg.errors = {};
+					}
+					msg.errors[getAbsoluteXPath(msg.driver, msg.element)] = {
+						name : node.name,
+						expected : node.expected,
+						value : text
+					};
+				}
+				node.send(msg);
 			});
 		});
 	}
 
+
 	RED.nodes.registerType("get-value", SeleniumGetValueNode);
-	
+
 	function SeleniumGetTextNode(n) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
+		this.expected = n.expected;
 		var node = this;
 		this.on("input", function(msg) {
 			msg.element.getText().then(function(text) {
 				msg.payload = text;
-				node.send(msg);	
+				node.send(msg);
 			});
-			
+
 		});
 	}
 
+
 	RED.nodes.registerType("get-text", SeleniumGetTextNode);
-	
+
 	function SeleniumTakeScreenshotNode(n) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
 		var node = this;
 		this.on("input", function(msg) {
 			msg.element.takeScreenshot().then(function() {
-				node.send(msg);	
+				node.send(msg);
 			});
 		});
 	}
-	
+
+
 	RED.nodes.registerType("screenshot", SeleniumTakeScreenshotNode);
-	
+
 	function SeleniumNavToNode(n) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
@@ -277,52 +299,56 @@ module.exports = function(RED) {
 		var node = this;
 		this.on("input", function(msg) {
 			msg.driver.navigate().to(node.url).then(function() {
-				node.send(msg);	
+				node.send(msg);
 			});
 		});
 	}
-	
+
+
 	RED.nodes.registerType("nav-to", SeleniumNavToNode);
-	
+
 	function SeleniumNavBackNode(n) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
 		var node = this;
 		this.on("input", function(msg) {
 			msg.driver.navigate().back().then(function() {
-				node.send(msg);	
+				node.send(msg);
 			});
 		});
 	}
-	
+
+
 	RED.nodes.registerType("nav-back", SeleniumNavBackNode);
-	
+
 	function SeleniumNavForwardNode(n) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
 		var node = this;
 		this.on("input", function(msg) {
 			msg.driver.navigate().forward().then(function() {
-				node.send(msg);	
+				node.send(msg);
 			});
 		});
 	}
-	
+
+
 	RED.nodes.registerType("nav-forward", SeleniumNavForwardNode);
-	
+
 	function SeleniumNavRefreshNode(n) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
 		var node = this;
 		this.on("input", function(msg) {
 			msg.driver.navigate().refresh().then(function() {
-				node.send(msg);	
+				node.send(msg);
 			});
 		});
 	}
-	
+
+
 	RED.nodes.registerType("nav-refresh", SeleniumNavRefreshNode);
-	
+
 	function SeleniumRunScriptNode(n) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
@@ -331,10 +357,11 @@ module.exports = function(RED) {
 		this.on("input", function(msg) {
 			msg.driver.executeScript(node.func, msg.element).then(function(results) {
 				msg.payload = results;
-				node.send(msg);	
+				node.send(msg);
 			});
 		});
 	}
-	
+
+
 	RED.nodes.registerType("run-script", SeleniumRunScriptNode);
 };
