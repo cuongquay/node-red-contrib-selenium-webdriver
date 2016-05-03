@@ -1,5 +1,5 @@
 # docker-node-red-selenium-webdriver
-The Node-RED selenium webdriver Docker image which allow to create selenium test flow by visual IDE tool
+The Node-RED selenium webdriver Docker image which allow to create selenium test flow by visual IDE Node-RED tool.
 
 docker pull cuongquay/docker-node-red-selenium-webdriver
 
