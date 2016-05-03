@@ -5,7 +5,7 @@ MAINTAINER cuong3ihut@gmail.com
 
 RUN npm install -g --unsafe-perm node-red
 
-RUN cd ~/.node-red && npm install node-red-contrib-selenium-webdriver
+RUN cd /usr/local/lib/node_modules/node-red/ && npm install node-red-contrib-selenium-webdriver
 	
 RUN npm install -g webdriver-manager
 RUN webdriver-manager update
