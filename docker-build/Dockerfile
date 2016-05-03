@@ -17,11 +17,11 @@ ENV DISPLAY :1.0
 
 RUN npm install -g webdriver-manager
 RUN webdriver-manager update
+RUN webdriver-manager start
+RUN Xvfb :1 -screen 0 1280x1024x24+32 &
     
 # expose port
 EXPOSE 1880
 
 # Run app using nodemon
-CMD Xvfb :1 -screen 0 1280x1024x24+32 &
-CMD ["webdriver-manager", "start"]
 CMD ["node-red"]
