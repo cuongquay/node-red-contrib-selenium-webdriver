@@ -10,11 +10,9 @@ RUN cd /usr/local/lib/node_modules/node-red/ && npm install node-red-contrib-sel
 
 RUN apt-get install -y \
 	xvfb wget openjdk-7-jre \
-	wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
-    dpkg --unpack google-chrome-stable_current_amd64.deb && \
-    apt-get install -f -y && \
-    apt-get clean && \
-    rm google-chrome-stable_current_amd64.deb
+	google-chrome-stable
+
+ENV DISPLAY :1.0
 
 RUN npm install -g webdriver-manager
 RUN webdriver-manager update
@@ -23,5 +21,6 @@ RUN webdriver-manager update
 EXPOSE 1880
 
 # Run app using nodemon
+CMD Xvfb :1 -screen 0 1280x1024x24+32 &
 CMD ["webdriver-manager", "start"]
 CMD ["node-red"]
