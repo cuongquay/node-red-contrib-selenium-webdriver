@@ -1,5 +1,5 @@
 # node-red-contrib-selenium-webdriver
-The Node-RED selenium webdriver nodes which allow to create selenium test flow by visual IDE tool
+The Node-RED selenium webdriver nodes which allow you to create selenium test flow by visual IDE tool
 
 **Install Selenium Server**
 
