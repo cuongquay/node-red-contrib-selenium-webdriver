@@ -1,5 +1,5 @@
 # Set node base image
-FROM node:5.11.0
+FROM node:4
 
 MAINTAINER cuong3ihut@gmail.com
 
