@@ -14,11 +14,12 @@ RUN echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/so
 RUN apt-get update -y && apt-get install -y xvfb openjdk-7-jre google-chrome-stable
 
 ENV DISPLAY :1.0
+RUN Xvfb :1 -screen 0 1280x1024x24+32 &
 
 RUN npm install -g webdriver-manager
 RUN webdriver-manager update
 RUN webdriver-manager start
-RUN Xvfb :1 -screen 0 1280x1024x24+32 &
+
     
 # expose port
 EXPOSE 1880
