@@ -8,9 +8,10 @@ RUN apt-get update
 RUN npm install -g --unsafe-perm node-red
 RUN cd /usr/local/lib/node_modules/node-red/ && npm install node-red-contrib-selenium-webdriver
 
-RUN apt-get install -y \
-	xvfb wget openjdk-7-jre \
-	google-chrome-stable
+RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+RUN echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list
+
+RUN apt-get update -y && apt-get install -y xvfb openjdk-7-jre google-chrome-stable
 
 ENV DISPLAY :1.0
 
