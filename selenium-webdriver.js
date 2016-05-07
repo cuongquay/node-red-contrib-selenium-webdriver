@@ -243,7 +243,7 @@ module.exports = function(RED) {
 		this.on("input", function(msg) {
 			msg.element.getAttribute("value").then(function(text) {
 				msg.payload = text;
-				if (node.expected && node.expected != "") {
+				if (node.expected && node.expected != "" && node.expected != text) {
 					if (!msg.errors) {
 						msg.errors = {};
 					}
@@ -269,6 +269,16 @@ module.exports = function(RED) {
 		this.on("input", function(msg) {
 			msg.element.getText().then(function(text) {
 				msg.payload = text;
+				if (node.expected && node.expected != "" && node.expected != text) {
+					if (!msg.errors) {
+						msg.errors = {};
+					}
+					msg.errors[getAbsoluteXPath(msg.driver, msg.element)] = {
+						name : node.name,
+						expected : node.expected,
+						value : text
+					};
+				}
 				node.send(msg);
 			});
 
