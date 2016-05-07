@@ -243,21 +243,25 @@ module.exports = function(RED) {
 		this.on("input", function(msg) {
 			msg.element.getAttribute("value").then(function(text) {
 				msg.payload = text;
-				if (node.expected && node.expected != "") {
+				if (node.expected && node.expected != "" && node.expected != text) {
 					if (!msg.errors) {
-						msg.errors = {};
+						msg.errors = new Array();
 					}
-					msg.errors[getAbsoluteXPath(msg.driver, msg.element)] = {
-						name : node.name,
-						expected : node.expected,
-						value : text
-					};
+					getAbsoluteXPath(msg.driver, msg.element).then(function(xpath) {
+						msg.errors.push({
+							name : node.name,
+							xpath: xpath,
+							expected : node.expected,
+							value : text
+						});
+						node.send(msg);
+					});
+				} else {
+					node.send(msg);
 				}
-				node.send(msg);
 			});
 		});
 	}
-
 
 	RED.nodes.registerType("get-value", SeleniumGetValueNode);
 
@@ -269,9 +273,23 @@ module.exports = function(RED) {
 		this.on("input", function(msg) {
 			msg.element.getText().then(function(text) {
 				msg.payload = text;
-				node.send(msg);
+				if (node.expected && node.expected != "" && node.expected != text) {
+					if (!msg.errors) {
+						msg.errors = new Array();
+					}
+					getAbsoluteXPath(msg.driver, msg.element).then(function(xpath) {
+						msg.errors.push({
+							name : node.name,
+							xpath: xpath,
+							expected : node.expected,
+							value : text
+						});
+						node.send(msg);
+					});
+				} else {
+					node.send(msg);
+				}
 			});
-
 		});
 	}
 
