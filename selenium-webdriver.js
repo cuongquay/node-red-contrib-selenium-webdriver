@@ -258,7 +258,6 @@ module.exports = function(RED) {
 		});
 	}
 
-
 	RED.nodes.registerType("get-value", SeleniumGetValueNode);
 
 	function SeleniumGetTextNode(n) {
