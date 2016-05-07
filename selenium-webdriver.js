@@ -245,15 +245,20 @@ module.exports = function(RED) {
 				msg.payload = text;
 				if (node.expected && node.expected != "" && node.expected != text) {
 					if (!msg.errors) {
-						msg.errors = {};
+						msg.errors = new Array();
 					}
-					msg.errors[getAbsoluteXPath(msg.driver, msg.element)] = {
-						name : node.name,
-						expected : node.expected,
-						value : text
-					};
+					getAbsoluteXPath(msg.driver, msg.element).then(function(xpath) {
+						msg.errors.push({
+							name : node.name,
+							xpath: xpath,
+							expected : node.expected,
+							value : text
+						});
+						node.send(msg);
+					});
+				} else {
+					node.send(msg);
 				}
-				node.send(msg);
 			});
 		});
 	}
@@ -270,17 +275,21 @@ module.exports = function(RED) {
 				msg.payload = text;
 				if (node.expected && node.expected != "" && node.expected != text) {
 					if (!msg.errors) {
-						msg.errors = {};
+						msg.errors = new Array();
 					}
-					msg.errors[getAbsoluteXPath(msg.driver, msg.element)] = {
-						name : node.name,
-						expected : node.expected,
-						value : text
-					};
+					getAbsoluteXPath(msg.driver, msg.element).then(function(xpath) {
+						msg.errors.push({
+							name : node.name,
+							xpath: xpath,
+							expected : node.expected,
+							value : text
+						});
+						node.send(msg);
+					});
+				} else {
+					node.send(msg);
 				}
-				node.send(msg);
 			});
-
 		});
 	}
 
