@@ -1,5 +1,5 @@
 # node-red-contrib-selenium-webdriver
-The Node-RED selenium webdriver node which allow to create selenium test flow by visual IDE tool
+The Node-RED selenium webdriver nodes which allow you to create selenium test flow by visual IDE tool
 
 **Install Selenium Server**
 
@@ -32,7 +32,7 @@ cd ~/.node-red && npm install node-red-contrib-selenium-webdriver
 
 ![Demo](https://raw.githubusercontent.com/cuongquay/node-red-contrib-selenium-webdriver/master/images/demo.png)
 
-*For your contribution, please visit:*
+*For your contributions, please visit:*
 
 https://github.com/cuongquay/node-red-contrib-selenium-webdriver
 
