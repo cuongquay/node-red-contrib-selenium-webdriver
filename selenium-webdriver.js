@@ -98,8 +98,11 @@ module.exports = function(RED) {
 		this.name = n.name;
 		this.server = n.server;
 		this.weburl = n.weburl;
+		this.width = n.width;
+		this.height = n.height;
 		this.webtitle = n.webtitle;
 		this.webtimeout = n.webtimeout;
+		this.maximized = n.maximized;
 		this.serverObj = RED.nodes.getNode(this.server);
 		var node = this;
 		if (node.serverObj) {
@@ -108,48 +111,67 @@ module.exports = function(RED) {
 				node.status({
 					fill : "green",
 					shape : "ring",
-					text : "common.status.connected"
+					text : "connected"
 				});
 			}, function(error) {
 				node.status({
 					fill : "red",
 					shape : "ring",
-					text : "common.status.disconnected"
+					text : "disconnected"
 				});
 			});
 		} else {
-			node.error(RED._("common.status.not-connected"));
+			node.error(RED._("common.status.error"));
 		}
 		this.on("input", function(msg) {
 			node.serverObj.connect().then(function(webdriver) {
+				function setWindowSize(driver, title) {
+					if (node.maximized) {
+						driver.manage().window().maximize().then(function() {
+							node.send({
+								driver : driver,
+								payload : title
+							});
+
+						});
+					} else {
+						driver.manage().window().setSize(parseInt(node.width), parseInt(node.height)).then(function() {
+							node.send({
+								driver : driver,
+								payload : title
+							});
+
+						});
+					}
+					node.status({
+						fill : "green",
+						shape : "ring",
+						text : "connected"
+					});
+				}
+
 				var driver = webdriver.build();
 				driver.get(node.weburl);
 				if (node.webtitle) {
 					driver.wait(until.titleIs(node.webtitle), parseInt(node.webtimeout)).catch(function(errorback) {
 						node.status({
-							fill : "red",
+							fill : "yellow",
 							shape : "ring",
-							text : "common.status.expected-failure"
+							text : "unexpected"
 						});
 					}).then(function() {
 						driver.getTitle().then(function(title) {
-							node.send({
-								driver : driver,
-								payload : title
-							});
+							setWindowSize(driver, title);
 						});
 					});
+				} else {
+					setWindowSize(driver);
 				}
-				node.status({
-					fill : "green",
-					shape : "ring",
-					text : "common.status.connected"
-				});
 			}, function(error) {
 				node.status({
 					fill : "red",
 					shape : "ring",
-					text : "common.status.disconnected"
+					text : "disconnected"
 				});
 			});
 		});
@@ -159,7 +181,6 @@ module.exports = function(RED) {
 			}
 		});
 	}
-
 
 	RED.nodes.registerType("open-web", SeleniumOpenURLNode);
 
@@ -172,7 +193,6 @@ module.exports = function(RED) {
 			node.send(msg);
 		});
 	}
-
 
 	RED.nodes.registerType("close-web", SeleniumCloseBrowserNode);
 
@@ -250,18 +270,29 @@ module.exports = function(RED) {
 					getAbsoluteXPath(msg.driver, msg.element).then(function(xpath) {
 						msg.errors.push({
 							name : node.name,
-							xpath: xpath,
+							xpath : xpath,
 							expected : node.expected,
 							value : text
 						});
 						node.send(msg);
+						node.status({
+							fill : "red",
+							shape : "ring",
+							text : "unexpected"
+						});
 					});
 				} else {
 					node.send(msg);
+					node.status({
+						fill : "green",
+						shape : "ring",
+						text : "passed"
+					});
 				}
 			});
 		});
 	}
+
 
 	RED.nodes.registerType("get-value", SeleniumGetValueNode);
 
@@ -280,14 +311,24 @@ module.exports = function(RED) {
 					getAbsoluteXPath(msg.driver, msg.element).then(function(xpath) {
 						msg.errors.push({
 							name : node.name,
-							xpath: xpath,
+							xpath : xpath,
 							expected : node.expected,
 							value : text
 						});
 						node.send(msg);
+						node.status({
+							fill : "red",
+							shape : "ring",
+							text : "unexpected"
+						});
 					});
 				} else {
 					node.send(msg);
+					node.status({
+						fill : "green",
+						shape : "ring",
+						text : "passed"
+					});
 				}
 			});
 		});
@@ -301,7 +342,8 @@ module.exports = function(RED) {
 		this.name = n.name;
 		var node = this;
 		this.on("input", function(msg) {
-			msg.element.takeScreenshot().then(function() {
+			msg.element.takeScreenshot().then(function(base64PNG) {
+				msg.image = base64PNG;
 				node.send(msg);
 			});
 		});

@@ -12,6 +12,14 @@
 	<input type="text" id="node-input-weburl">
 	</div>
 	<div class="form-row">
+	<label for="node-input-width"><i class="fa fa-globe"></i> <span>Width</span></label>
+	<input type="text" id="node-input-width" value="1024">
+	</div>
+	<div class="form-row">
+	<label for="node-input-height"><i class="fa fa-globe"></i> <span>Height</span></label>
+	<input type="text" id="node-input-height" value="768">
+	</div>
+	<div class="form-row">
 	<label for="node-input-webtitle"><i class="fa fa-globe"></i> <span>Web Title</span></label>
 	<input type="text" id="node-input-webtitle">
 	</div>
@@ -19,10 +27,16 @@
 	<label for="node-input-webtimeout"><i class="fa fa-globe"></i> <span>Timeout</span></label>
 	<input type="text" id="node-input-webtimeout">
 	</div>
+	<div class="form-row">
+	<input type="checkbox" id="node-input-maximized" checked style="display: inline-block; width: auto; vertical-align: top;">
+	<label for="node-input-maximized" style="width: auto;">Maximize window</label>
+	</div>
 </script>
 
 <script type="text/x-red" data-help-name="open-web">
 	<p>Create an instance of selenium webdriver and connect to the Selenium Server when an event is triggered.</p>
+	<p><code>msg.driver</code> contains the web driver object.</p>
+	<p><code>msg.payload</code> contains the title of the opened web page. This payload value will be used to compare with the expected Web Title value if that value is set.</p>
 </script>
 
 <script type="text/javascript">
@@ -36,6 +50,14 @@
 				value : "https://www.google.com/",
 				required : true
 			},
+			width : {
+				value : 1024,
+				validate : RED.validators.number()
+			},
+			height : {
+				value : 768,
+				validate : RED.validators.number()
+			},
 			webtitle : {
 				value : "Google"
 			},
@@ -43,6 +65,10 @@
 				value : 3000,
 				required : true,
 				validate : RED.validators.number()
+			},
+			maximized : {
+				value : true,
+				required : true
 			},
 			server : {
 				type : "selenium-server",
@@ -70,7 +96,7 @@
 </script>
 
 <script type="text/x-red" data-help-name="close-web">
-	<p>Create an instance of selenium webdriver and connect to the Selenium Server when an event is triggered.</p>
+	<p>Close the web browser which is openned by the open-web node and finalize the selenium session.</p>
 </script>
 
 <script type="text/javascript">
@@ -119,7 +145,8 @@
 </script>
 
 <script type="text/x-red" data-help-name="find-object">
-	<p>Find an object or element by using selenium webdriver findElement().</p>
+	<p>Find an object or element by using selenium webdriver <code>findElement()</code>.</p>
+	<p>Output is <code>msg.element</code> contains the DOM element object.</p>
 </script>
 
 <script type="text/javascript">
@@ -130,10 +157,12 @@
 				value : ""
 			},
 			selector : {
-				value : "", required: true
+				value : "",
+				required : true
 			},
 			text : {
-				value : "", required: true
+				value : "",
+				required : true
 			}
 		},
 		color : "#d8bfd8",
@@ -161,7 +190,7 @@
 </script>
 
 <script type="text/x-red" data-help-name="send-keys">
-	<p>Send keyboard keys to a specific element from previous node.</p>
+	<p>Send keyboard keys to the <code>msg.element</code> from previous node with charracters.</p>
 </script>
 
 <script type="text/javascript">
@@ -172,7 +201,8 @@
 				value : ""
 			},
 			text : {
-				value : "", required: true
+				value : "",
+				required : true
 			},
 		},
 		color : "#d8bfd8",
@@ -196,7 +226,7 @@
 </script>
 
 <script type="text/x-red" data-help-name="click-on">
-	<p>Click on an element which is determined by previous node.</p>
+	<p>Click on the <code>msg.element</code> which is passed by previous node.</p>
 </script>
 
 <script type="text/javascript">
@@ -228,7 +258,7 @@
 </script>
 
 <script type="text/x-red" data-help-name="set-value">
-	<p>Set a value to a specific element from previous node.</p>
+	<p>Set a value to the <code>value</code> attribute of the <code>msg.element</code>.</p>
 </script>
 
 <script type="text/javascript">
@@ -264,8 +294,9 @@
 </script>
 
 <script type="text/x-red" data-help-name="get-value">
-	<p>Get a value to a specific element from previous node.</p>
-	<p><code>msg.errors</code> object is set when the element's value is different from the expected value.</p>
+	<p>Get the value from <code>value</code> attribute of the <code>msg.element</code>.</p>
+	<p><code>msg.payload</code> contains the result of the <code>value</code> attribute.</p>
+	<p><code>msg.errors</code> object is set when the value is different from the expected value.</p>
 </script>
 
 <script type="text/javascript">
@@ -304,7 +335,8 @@
 </script>
 
 <script type="text/x-red" data-help-name="get-text">
-	<p>Set the text of an element from previous node.</p>
+	<p>Get the text of the <code>msg.element</code> passed from previous node.</p>
+	<p><code>msg.payload</code> contains the inner text of the <code>msg.element</code>.</p>
 	<p><code>msg.errors</code> object is set when the text is different from the expected value.</p>
 </script>
 
@@ -341,6 +373,7 @@
 
 <script type="text/x-red" data-help-name="screenshot">
 	<p>Schedule a command to take a screenshot.</p>
+	<p><code>msg.image</code> contains the screenshot as a base-64 encoded PNG.</p>
 </script>
 
 <script type="text/javascript">
@@ -363,7 +396,6 @@
 		}
 	}); 
 </script>
-
 
 <script type="text/x-red" data-template-name="nav-to">
 	<div class="form-row">
@@ -388,7 +420,8 @@
 				value : ""
 			},
 			url : {
-				value : "", required: true
+				value : "",
+				required : true
 			}
 		},
 		color : "#d8bfd8",
@@ -403,7 +436,6 @@
 		}
 	}); 
 </script>
-
 
 <script type="text/x-red" data-template-name="nav-back">
 	<div class="form-row">
@@ -469,7 +501,6 @@
 	}); 
 </script>
 
-
 <script type="text/x-red" data-template-name="nav-refresh">
 	<div class="form-row">
 	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
@@ -508,13 +539,13 @@
 	<input type="text" id="node-input-name">
 	</div>
 	<div class="form-row" style="margin-bottom: 0px;">
-        <label for="node-input-func"><i class="fa fa-wrench"></i> <span data-i18n="function.label.function"></span></label>
-        <input type="hidden" id="node-input-func" autofocus="autofocus">
-        <input type="hidden" id="node-input-noerr">
-    </div>
-    <div class="form-row node-text-editor-row">
-        <div style="height: 250px;" class="node-text-editor" id="node-input-func-editor" ></div>
-    </div>
+	<label for="node-input-func"><i class="fa fa-wrench"></i> <span data-i18n="function.label.function"></span></label>
+	<input type="hidden" id="node-input-func" autofocus="autofocus">
+	<input type="hidden" id="node-input-noerr">
+	</div>
+	<div class="form-row node-text-editor-row">
+	<div style="height: 250px;" class="node-text-editor" id="node-input-func-editor" ></div>
+	</div>
 </script>
 
 <script type="text/x-red" data-help-name="run-script">
@@ -528,7 +559,9 @@
 			name : {
 				value : ""
 			},
-			func: { value:"\nreturn arguments[0].innerHTML;" },
+			func : {
+				value : "\nreturn arguments[0].innerHTML;"
+			},
 		},
 		color : "#d8bfd8",
 		inputs : 1,
@@ -540,54 +573,56 @@
 		labelStyle : function() {
 			return this.name ? "node_label_italic" : "";
 		},
-		oneditprepare: function() {
-            var that = this;            
-            function functionDialogResize() {
-                var rows = $("#dialog-form>div:not(.node-text-editor-row)");
-                var height = $("#dialog-form").height();
-                for (var i=0;i<rows.size();i++) {
-                    height -= $(rows[i]).outerHeight(true);
-                }
-                var editorRow = $("#dialog-form>div.node-text-editor-row");
-                height -= (parseInt(editorRow.css("marginTop"))+parseInt(editorRow.css("marginBottom")));
-                $(".node-text-editor").css("height",height+"px");
-                that.editor.resize();
-            }
-            $( "#dialog" ).on("dialogresize", functionDialogResize);
-            $( "#dialog" ).one("dialogopen", function(ev) {
-                var size = $( "#dialog" ).dialog('option','sizeCache-function');
-                if (size) {
-                    $("#dialog").dialog('option','width',size.width);
-                    $("#dialog").dialog('option','height',size.height);
-                    functionDialogResize();
-                }
-            });
-            $( "#dialog" ).one("dialogclose", function(ev,ui) {
-                var height = $( "#dialog" ).dialog('option','height');
-                $( "#dialog" ).off("dialogresize",functionDialogResize);
-            });
+		oneditprepare : function() {
+			var that = this;
+			function functionDialogResize() {
+				var rows = $("#dialog-form>div:not(.node-text-editor-row)");
+				var height = $("#dialog-form").height();
+				for (var i = 0; i < rows.size(); i++) {
+					height -= $(rows[i]).outerHeight(true);
+				}
+				var editorRow = $("#dialog-form>div.node-text-editor-row");
+				height -= (parseInt(editorRow.css("marginTop")) + parseInt(editorRow.css("marginBottom")));
+				$(".node-text-editor").css("height", height + "px");
+				that.editor.resize();
+			}
 
-            this.editor = RED.editor.createEditor({
-                id: 'node-input-func-editor',
-                mode: 'ace/mode/javascript',
-                value: $("#node-input-func").val()
-            });
-            this.editor.focus();
-        },
-        oneditsave: function() {
-            var annot = this.editor.getSession().getAnnotations();
-            this.noerr = 0;
-            $("#node-input-noerr").val(0);
-            for (var k=0; k < annot.length; k++) {
-                //console.log(annot[k].type,":",annot[k].text, "on line", annot[k].row);
-                if (annot[k].type === "error") {
-                    $("#node-input-noerr").val(annot.length);
-                    this.noerr = annot.length;
-                }
-            }
-            $("#node-input-func").val(this.editor.getValue());
-            delete this.editor;
-        }
+
+			$("#dialog").on("dialogresize", functionDialogResize);
+			$("#dialog").one("dialogopen", function(ev) {
+				var size = $("#dialog").dialog('option', 'sizeCache-function');
+				if (size) {
+					$("#dialog").dialog('option', 'width', size.width);
+					$("#dialog").dialog('option', 'height', size.height);
+					functionDialogResize();
+				}
+			});
+			$("#dialog").one("dialogclose", function(ev, ui) {
+				var height = $("#dialog").dialog('option', 'height');
+				$("#dialog").off("dialogresize", functionDialogResize);
+			});
+
+			this.editor = RED.editor.createEditor({
+				id : 'node-input-func-editor',
+				mode : 'ace/mode/javascript',
+				value : $("#node-input-func").val()
+			});
+			this.editor.focus();
+		},
+		oneditsave : function() {
+			var annot = this.editor.getSession().getAnnotations();
+			this.noerr = 0;
+			$("#node-input-noerr").val(0);
+			for (var k = 0; k < annot.length; k++) {
+				//console.log(annot[k].type,":",annot[k].text, "on line", annot[k].row);
+				if (annot[k].type === "error") {
+					$("#node-input-noerr").val(annot.length);
+					this.noerr = annot.length;
+				}
+			}
+			$("#node-input-func").val(this.editor.getValue());
+			delete this.editor;
+		}
 	}); 
 </script>
 
