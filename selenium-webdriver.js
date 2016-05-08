@@ -128,17 +128,15 @@ module.exports = function(RED) {
 				function setWindowSize(driver, title) {
 					if (node.maximized) {
 						driver.manage().window().maximize().then(function() {
-							node.send({
-								driver : driver,
-								payload : title
-							});
+							msg.driver = driver;
+							msg.payload = title;
+							node.send(msg);
 						});
 					} else {
 						driver.manage().window().setSize(parseInt(node.width), parseInt(node.height)).then(function() {
-							node.send({
-								driver : driver,
-								payload : title
-							});
+							msg.driver = driver;
+							msg.payload = title;
+							node.send(msg);
 						});
 					}
 					node.status({
