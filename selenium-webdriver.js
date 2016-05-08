@@ -132,7 +132,6 @@ module.exports = function(RED) {
 								driver : driver,
 								payload : title
 							});
-
 						});
 					} else {
 						driver.manage().window().setSize(parseInt(node.width), parseInt(node.height)).then(function() {
@@ -140,7 +139,6 @@ module.exports = function(RED) {
 								driver : driver,
 								payload : title
 							});
-
 						});
 					}
 					node.status({
