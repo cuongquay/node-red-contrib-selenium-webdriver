@@ -148,6 +148,8 @@ module.exports = function(RED) {
 					delete msg.error;
 					node.send(msg);
 				}
+			}).catch(function(errorback) {
+				node.send(msg);
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -163,6 +165,8 @@ module.exports = function(RED) {
 					text : "done"
 				});
 				delete msg.error;
+				node.send(msg);
+			}).catch(function(errorback) {
 				node.send(msg);
 			});
 		} catch (ex) {
@@ -180,6 +184,8 @@ module.exports = function(RED) {
 				});
 				delete msg.error;
 				node.send(msg);
+			}).catch(function(errorback) {
+				node.send(msg);
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -195,6 +201,8 @@ module.exports = function(RED) {
 					text : "done"
 				});
 				delete msg.error;
+				node.send(msg);
+			}).catch(function(errorback) {
 				node.send(msg);
 			});
 		} catch (ex) {
@@ -213,6 +221,8 @@ module.exports = function(RED) {
 				delete msg.error;
 				msg.payload = results;
 				node.send(msg);
+			}).catch(function(errorback) {
+				node.send(msg);
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -229,6 +239,8 @@ module.exports = function(RED) {
 					text : "done"
 				});
 				delete msg.error;
+				node.send(msg);
+			}).catch(function(errorback) {
 				node.send(msg);
 			});
 		} catch (ex) {
