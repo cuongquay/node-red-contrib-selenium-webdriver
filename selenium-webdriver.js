@@ -101,7 +101,7 @@ module.exports = function(RED) {
 		this.width = n.width;
 		this.height = n.height;
 		this.webtitle = n.webtitle;
-		this.webtimeout = n.webtimeout;
+		this.timeout = n.timeout;
 		this.maximized = n.maximized;
 		this.serverObj = RED.nodes.getNode(this.server);
 		var node = this;
@@ -149,7 +149,7 @@ module.exports = function(RED) {
 				var driver = webdriver.build();
 				driver.get(node.weburl);
 				if (node.webtitle) {
-					driver.wait(until.titleIs(node.webtitle), parseInt(node.webtimeout)).catch(function(errorback) {
+					driver.wait(until.titleIs(node.webtitle), parseInt(node.timeout)).catch(function(errorback) {
 						node.status({
 							fill : "yellow",
 							shape : "ring",
@@ -178,6 +178,7 @@ module.exports = function(RED) {
 		});
 	}
 
+
 	RED.nodes.registerType("open-web", SeleniumOpenURLNode);
 
 	function SeleniumCloseBrowserNode(n) {
@@ -190,17 +191,40 @@ module.exports = function(RED) {
 		});
 	}
 
+
 	RED.nodes.registerType("close-web", SeleniumCloseBrowserNode);
 
 	function SeleniumFindElementNode(n) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
 		this.selector = n.selector;
-		this.value = n.text;
+		this.timeout = n.timeout;
+		this.target = n.target;
 		var node = this;
 		this.on("input", function(msg) {
-			msg.element = msg.driver.findElement(By[node.selector](node.value));
-			node.send(msg);
+			msg.driver.wait(until.elementLocated(By[node.selector](node.target)), parseInt(node.timeout)).catch(function(errorback) {
+				if (!msg.errors) {
+					msg.errors = new Array();
+				}
+				msg.errors.push({
+					name : node.name,
+					selector : node.selector,
+					target : node.value,
+					value : errorback
+				});
+				delete msg.element;
+				node.status({
+					fill : "red",
+					shape : "ring",
+					text : "unexpected"
+				});
+				node.send(msg);
+			}).then(function() {
+				msg.element = msg.driver.findElement(By[node.selector](node.target));
+				node.send(msg);
+			}, function(err) {
+
+			});
 		});
 	}
 
@@ -211,11 +235,43 @@ module.exports = function(RED) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
 		this.keys = n.text;
+		this.selector = n.selector;
+		this.timeout = n.timeout;
+		this.target = n.target;
 		var node = this;
 		this.on("input", function(msg) {
-			msg.element.sendKeys(node.keys).then(function() {
-				node.send(msg);
-			});
+			if (node.target && node.target != "") {
+				msg.driver.wait(until.elementLocated(By[node.selector](node.target)), parseInt(node.timeout)).catch(function(errorback) {
+					if (!msg.errors) {
+						msg.errors = new Array();
+					}
+					msg.errors.push({
+						name : node.name,
+						selector : node.selector,
+						target : node.value,
+						value : errorback
+					});
+					delete msg.element;
+					node.status({
+						fill : "red",
+						shape : "ring",
+						text : "unexpected"
+					});
+					node.send(msg);
+				}).then(function() {
+					msg.element = msg.driver.findElement(By[node.selector](node.target));
+					msg.element.sendKeys(node.keys).then(function() {
+						node.send(msg);
+					});
+				}, function(err) {
+					node.send(msg);
+				});
+			} else {
+				msg.element.sendKeys(node.keys).then(function() {
+					node.send(msg);
+				});
+			}
+
 		});
 	}
 
@@ -225,11 +281,43 @@ module.exports = function(RED) {
 	function SeleniumClickOnNode(n) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
+		this.selector = n.selector;
+		this.timeout = n.timeout;
+		this.target = n.target;
 		var node = this;
 		this.on("input", function(msg) {
-			msg.element.click().then(function() {
-				node.send(msg);
-			});
+			if (node.target && node.target != "") {
+				msg.driver.wait(until.elementLocated(By[node.selector](node.target)), parseInt(node.timeout)).catch(function(errorback) {
+					if (!msg.errors) {
+						msg.errors = new Array();
+					}
+					msg.errors.push({
+						name : node.name,
+						selector : node.selector,
+						target : node.value,
+						value : errorback
+					});
+					delete msg.element;
+					node.status({
+						fill : "red",
+						shape : "ring",
+						text : "unexpected"
+					});
+					node.send(msg);
+				}).then(function() {
+					msg.element = msg.driver.findElement(By[node.selector](node.target));
+					msg.element.click().then(function() {
+						node.send(msg);
+					});
+				}, function(err) {
+					node.send(msg);
+				});
+			} else {
+				msg.element.click().then(function() {
+					node.send(msg);
+				});
+			}
+
 		});
 	}
 
@@ -240,11 +328,43 @@ module.exports = function(RED) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
 		this.value = n.text;
+		this.selector = n.selector;
+		this.timeout = n.timeout;
+		this.target = n.target;
 		var node = this;
 		this.on("input", function(msg) {
-			msg.driver.executeScript("arguments[0].setAttribute('value', '" + node.value + "')", msg.element).then(function() {
-				node.send(msg);
-			});
+			if (node.target && node.target != "") {
+				msg.driver.wait(until.elementLocated(By[node.selector](node.target)), parseInt(node.timeout)).catch(function(errorback) {
+					if (!msg.errors) {
+						msg.errors = new Array();
+					}
+					msg.errors.push({
+						name : node.name,
+						selector : node.selector,
+						target : node.value,
+						value : errorback
+					});
+					delete msg.element;
+					node.status({
+						fill : "red",
+						shape : "ring",
+						text : "unexpected"
+					});
+					node.send(msg);
+				}).then(function() {
+					msg.element = msg.driver.findElement(By[node.selector](node.target));
+					msg.driver.executeScript("arguments[0].setAttribute('value', '" + node.value + "')", msg.element).then(function() {
+						node.send(msg);
+					});
+				}, function(err) {
+					node.send(msg);
+				});
+			} else {
+				msg.driver.executeScript("arguments[0].setAttribute('value', '" + node.value + "')", msg.element).then(function() {
+					node.send(msg);
+				});
+			}
+
 		});
 	}
 
@@ -255,39 +375,106 @@ module.exports = function(RED) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
 		this.expected = n.expected;
+		this.selector = n.selector;
+		this.timeout = n.timeout;
+		this.target = n.target;
 		var node = this;
 		this.on("input", function(msg) {
-			msg.element.getAttribute("value").then(function(text) {
-				msg.payload = text;
-				if (node.expected && node.expected != "" && node.expected != text) {
+			if (node.target && node.target != "") {
+				msg.driver.wait(until.elementLocated(By[node.selector](node.target)), parseInt(node.timeout)).catch(function(errorback) {
 					if (!msg.errors) {
 						msg.errors = new Array();
 					}
-					getAbsoluteXPath(msg.driver, msg.element).then(function(xpath) {
-						msg.errors.push({
-							name : node.name,
-							xpath : xpath,
-							expected : node.expected,
-							value : text
-						});
-						node.send(msg);
-						node.status({
-							fill : "red",
-							shape : "ring",
-							text : "unexpected"
-						});
+					msg.errors.push({
+						name : node.name,
+						selector : node.selector,
+						target : node.value,
+						value : errorback
 					});
-				} else {
-					node.send(msg);
+					delete msg.element;
 					node.status({
-						fill : "green",
+						fill : "red",
 						shape : "ring",
-						text : "passed"
+						text : "unexpected"
 					});
+					node.send(msg);
+				}).then(function() {
+					msg.element = msg.driver.findElement(By[node.selector](node.target));
+					try {
+						msg.element.getAttribute("value").then(function(text) {
+							msg.payload = text;
+							if (node.expected && node.expected != "" && node.expected != text) {
+								if (!msg.errors) {
+									msg.errors = new Array();
+								}
+								getAbsoluteXPath(msg.driver, msg.element).then(function(xpath) {
+									msg.errors.push({
+										name : node.name,
+										xpath : xpath,
+										expected : node.expected,
+										value : text
+									});
+									node.send(msg);
+									node.status({
+										fill : "red",
+										shape : "ring",
+										text : "unexpected"
+									});
+								});
+							} else {
+								node.send(msg);
+								node.status({
+									fill : "green",
+									shape : "ring",
+									text : "passed"
+								});
+							}
+						});
+					} catch (ex) {
+						node.send(msg);
+					}
+				}, function(err) {
+					node.send(msg);
+				});
+			} else {
+				try {
+					msg.element.getAttribute("value").then(function(text) {
+						msg.payload = text;
+						if (node.expected && node.expected != "" && node.expected != text) {
+							if (!msg.errors) {
+								msg.errors = new Array();
+							}
+							getAbsoluteXPath(msg.driver, msg.element).then(function(xpath) {
+								msg.errors.push({
+									name : node.name,
+									xpath : xpath,
+									expected : node.expected,
+									value : text
+								});
+								node.send(msg);
+								node.status({
+									fill : "red",
+									shape : "ring",
+									text : "unexpected"
+								});
+							});
+						} else {
+							node.send(msg);
+							node.status({
+								fill : "green",
+								shape : "ring",
+								text : "passed"
+							});
+						}
+					});
+				} catch (ex) {
+					node.send(msg);
 				}
-			});
+			}
+
 		});
 	}
+
 
 	RED.nodes.registerType("get-value", SeleniumGetValueNode);
 
@@ -295,37 +482,103 @@ module.exports = function(RED) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
 		this.expected = n.expected;
+		this.selector = n.selector;
+		this.timeout = n.timeout;
+		this.target = n.target;
 		var node = this;
 		this.on("input", function(msg) {
-			msg.element.getText().then(function(text) {
-				msg.payload = text;
-				if (node.expected && node.expected != "" && node.expected != text) {
+			if (node.target && node.target != "") {
+				msg.driver.wait(until.elementLocated(By[node.selector](node.target)), parseInt(node.timeout)).catch(function(errorback) {
 					if (!msg.errors) {
 						msg.errors = new Array();
 					}
-					getAbsoluteXPath(msg.driver, msg.element).then(function(xpath) {
-						msg.errors.push({
-							name : node.name,
-							xpath : xpath,
-							expected : node.expected,
-							value : text
-						});
-						node.send(msg);
-						node.status({
-							fill : "red",
-							shape : "ring",
-							text : "unexpected"
-						});
+					msg.errors.push({
+						name : node.name,
+						selector : node.selector,
+						target : node.value,
+						value : errorback
 					});
-				} else {
-					node.send(msg);
+					delete msg.element;
 					node.status({
-						fill : "green",
+						fill : "red",
 						shape : "ring",
-						text : "passed"
+						text : "unexpected"
 					});
+					node.send(msg);
+				}).then(function() {
+					msg.element = msg.driver.findElement(By[node.selector](node.target));
+					try {
+						msg.element.getText().then(function(text) {
+							msg.payload = text;
+							if (node.expected && node.expected != "" && node.expected != text) {
+								if (!msg.errors) {
+									msg.errors = new Array();
+								}
+								getAbsoluteXPath(msg.driver, msg.element).then(function(xpath) {
+									msg.errors.push({
+										name : node.name,
+										xpath : xpath,
+										expected : node.expected,
+										value : text
+									});
+									node.send(msg);
+									node.status({
+										fill : "red",
+										shape : "ring",
+										text : "unexpected"
+									});
+								});
+							} else {
+								node.send(msg);
+								node.status({
+									fill : "green",
+									shape : "ring",
+									text : "passed"
+								});
+							}
+						});
+					} catch (ex) {
+						node.send(msg);
+					}
+				}, function(err) {
+					node.send(msg);
+				});
+			} else {
+				try {
+					msg.element.getText().then(function(text) {
+						msg.payload = text;
+						if (node.expected && node.expected != "" && node.expected != text) {
+							if (!msg.errors) {
+								msg.errors = new Array();
+							}
+							getAbsoluteXPath(msg.driver, msg.element).then(function(xpath) {
+								msg.errors.push({
+									name : node.name,
+									xpath : xpath,
+									expected : node.expected,
+									value : text
+								});
+								node.send(msg);
+								node.status({
+									fill : "red",
+									shape : "ring",
+									text : "unexpected"
+								});
+							});
+						} else {
+							node.send(msg);
+							node.status({
+								fill : "green",
+								shape : "ring",
+								text : "passed"
+							});
+						}
+					});
+				} catch (ex) {
+					node.send(msg);
 				}
-			});
+			}
+
 		});
 	}
 
@@ -337,10 +590,14 @@ module.exports = function(RED) {
 		this.name = n.name;
 		var node = this;
 		this.on("input", function(msg) {
-			msg.element.takeScreenshot().then(function(base64PNG) {
-				msg.image = base64PNG;
+			if (msg.element) {
+				msg.element.takeScreenshot().then(function(base64PNG) {
+					msg.image = base64PNG;
+					node.send(msg);
+				});
+			} else {
 				node.send(msg);
-			});
+			}
 		});
 	}
 
@@ -410,10 +667,14 @@ module.exports = function(RED) {
 		this.func = n.func;
 		var node = this;
 		this.on("input", function(msg) {
-			msg.driver.executeScript(node.func, msg.element).then(function(results) {
-				msg.payload = results;
+			if (msg.element) {
+				msg.driver.executeScript(node.func, msg.element).then(function(results) {
+					msg.payload = results;
+					node.send(msg);
+				});
+			} else {
 				node.send(msg);
-			});
+			}
 		});
 	}
 

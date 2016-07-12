@@ -1,35 +1,35 @@
 <script type="text/x-red" data-template-name="open-web">
 	<div class="form-row">
-	<label for="node-input-server"><i class="fa fa-globe"></i> <span>Server</span></label>
-	<input type="text" id="node-input-server">
+		<label for="node-input-server"><i class="fa fa-globe"></i> <span>Server</span></label>
+		<input type="text" id="node-input-server">
 	</div>
 	<div class="form-row">
-	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
-	<input type="text" id="node-input-name">
+		<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
+		<input type="text" id="node-input-name">
 	</div>
 	<div class="form-row">
-	<label for="node-input-weburl"><i class="fa fa-globe"></i> <span>Web URL</span></label>
-	<input type="text" id="node-input-weburl">
+		<label for="node-input-weburl"><i class="fa fa-globe"></i> <span>Web URL</span></label>
+		<input type="text" id="node-input-weburl">
 	</div>
 	<div class="form-row">
-	<label for="node-input-width"><i class="fa fa-globe"></i> <span>Width</span></label>
-	<input type="text" id="node-input-width" value="1024">
+		<label for="node-input-width"><i class="fa fa-globe"></i> <span>Width</span></label>
+		<input type="text" id="node-input-width" value="1024">
 	</div>
 	<div class="form-row">
-	<label for="node-input-height"><i class="fa fa-globe"></i> <span>Height</span></label>
-	<input type="text" id="node-input-height" value="768">
+		<label for="node-input-height"><i class="fa fa-globe"></i> <span>Height</span></label>
+		<input type="text" id="node-input-height" value="768">
 	</div>
 	<div class="form-row">
-	<label for="node-input-webtitle"><i class="fa fa-globe"></i> <span>Web Title</span></label>
-	<input type="text" id="node-input-webtitle">
+		<label for="node-input-webtitle"><i class="fa fa-globe"></i> <span>Web Title</span></label>
+		<input type="text" id="node-input-webtitle">
 	</div>
 	<div class="form-row">
-	<label for="node-input-webtimeout"><i class="fa fa-globe"></i> <span>Timeout</span></label>
-	<input type="text" id="node-input-webtimeout">
+		<label for="node-input-timeout"><i class="fa fa-globe"></i> <span>Timeout</span></label>
+		<input type="text" id="node-input-timeout" value="1000">
 	</div>
 	<div class="form-row">
-	<input type="checkbox" id="node-input-maximized" checked style="display: inline-block; width: auto; vertical-align: top;">
-	<label for="node-input-maximized" style="width: auto;">Maximize window</label>
+		<input type="checkbox" id="node-input-maximized" checked style="display: inline-block; width: auto; vertical-align: top;">
+		<label for="node-input-maximized" style="width: auto;">Maximize window</label>
 	</div>
 </script>
 
@@ -90,8 +90,8 @@
 
 <script type="text/x-red" data-template-name="close-web">
 	<div class="form-row">
-	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
-	<input type="text" id="node-input-name">
+		<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
+		<input type="text" id="node-input-name">
 	</div>
 </script>
 
@@ -122,25 +122,29 @@
 
 <script type="text/x-red" data-template-name="find-object">
 	<div class="form-row">
-	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
-	<input type="text" id="node-input-name">
+		<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
+		<input type="text" id="node-input-name">
 	</div>
 	<div class="form-row">
-	<label for="node-input-selector"><i class="fa fa-empire"></i> <span>By</span></label>
-	<select id="node-input-selector" style="width:125px !important">
-	<option value="id">id</option>
-	<option value="name">name</option>
-	<option value="link">link</option>
-	<option value="xpath">xpath</option>
-	<option value="tagName">tagName</option>
-	<option value="className">className</option>
-	<option value="linkText">linkText</option>
-	<option value="cssSelector">cssSelector</option>
-	</select>
+		<label for="node-input-selector"><i class="fa fa-empire"></i> <span>By</span></label>
+		<select id="node-input-selector" style="width:125px !important">
+			<option value="id">id</option>
+			<option value="name">name</option>
+			<option value="link">link</option>
+			<option value="xpath">xpath</option>
+			<option value="tagName">tagName</option>
+			<option value="className">className</option>
+			<option value="linkText">linkText</option>
+			<option value="cssSelector">cssSelector</option>
+		</select>
 	</div>
 	<div class="form-row">
-	<label for="node-input-text"><i class="fa fa-empire"></i> <span>Value</span></label>
-	<input type="text" id="node-input-text">
+		<label for="node-input-target"><i class="fa fa-empire"></i> <span>Target</span></label>
+		<input type="text" id="node-input-target">
+	</div>
+	<div class="form-row">
+		<label for="node-input-timeout"><i class="fa fa-globe"></i> <span>Timeout</span></label>
+		<input type="text" id="node-input-timeout" value="1000">
 	</div>
 </script>
 
@@ -160,9 +164,14 @@
 				value : "",
 				required : true
 			},
-			text : {
+			target : {
 				value : "",
 				required : true
+			},
+			timeout : {
+				value : 1000,
+				required : true,
+				validate : RED.validators.number()
 			}
 		},
 		color : "#d8bfd8",
@@ -180,12 +189,33 @@
 
 <script type="text/x-red" data-template-name="send-keys">
 	<div class="form-row">
-	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
-	<input type="text" id="node-input-name">
+		<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
+		<input type="text" id="node-input-name">
 	</div>
 	<div class="form-row">
-	<label for="node-input-text"><i class="fa fa-empire"></i> <span>Value</span></label>
-	<input type="text" id="node-input-text">
+		<label for="node-input-text"><i class="fa fa-empire"></i> <span>Value</span></label>
+		<input type="text" id="node-input-text">
+	</div>
+	<div class="form-row">
+		<label for="node-input-selector"><i class="fa fa-empire"></i> <span>By</span></label>
+		<select id="node-input-selector" style="width:125px !important">
+			<option value="id">id</option>
+			<option value="name">name</option>
+			<option value="link">link</option>
+			<option value="xpath">xpath</option>
+			<option value="tagName">tagName</option>
+			<option value="className">className</option>
+			<option value="linkText">linkText</option>
+			<option value="cssSelector">cssSelector</option>
+		</select>
+	</div>
+	<div class="form-row">
+		<label for="node-input-target"><i class="fa fa-empire"></i> <span>Target</span></label>
+		<input type="text" id="node-input-target">
+	</div>
+	<div class="form-row">
+		<label for="node-input-timeout"><i class="fa fa-globe"></i> <span>Timeout</span></label>
+		<input type="text" id="node-input-timeout" value="1000">
 	</div>
 </script>
 
@@ -204,6 +234,16 @@
 				value : "",
 				required : true
 			},
+			selector : {
+				value : ""
+			},
+			target : {
+				value : ""
+			},
+			timeout : {
+				value : 1000,
+				validate : RED.validators.number()
+			}
 		},
 		color : "#d8bfd8",
 		inputs : 1,
@@ -220,8 +260,29 @@
 
 <script type="text/x-red" data-template-name="click-on">
 	<div class="form-row">
-	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
-	<input type="text" id="node-input-name">
+		<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
+		<input type="text" id="node-input-name">
+	</div>
+	<div class="form-row">
+		<label for="node-input-selector"><i class="fa fa-empire"></i> <span>By</span></label>
+		<select id="node-input-selector" style="width:125px !important">
+			<option value="id">id</option>
+			<option value="name">name</option>
+			<option value="link">link</option>
+			<option value="xpath">xpath</option>
+			<option value="tagName">tagName</option>
+			<option value="className">className</option>
+			<option value="linkText">linkText</option>
+			<option value="cssSelector">cssSelector</option>
+		</select>
+	</div>
+	<div class="form-row">
+		<label for="node-input-target"><i class="fa fa-empire"></i> <span>Target</span></label>
+		<input type="text" id="node-input-target">
+	</div>
+	<div class="form-row">
+		<label for="node-input-timeout"><i class="fa fa-globe"></i> <span>Timeout</span></label>
+		<input type="text" id="node-input-timeout" value="1000">
 	</div>
 </script>
 
@@ -235,6 +296,16 @@
 		defaults : {
 			name : {
 				value : ""
+			},
+			selector : {
+				value : ""
+			},
+			target : {
+				value : ""
+			},
+			timeout : {
+				value : 1000,
+				validate : RED.validators.number()
 			}
 		},
 		color : "#d8bfd8",
@@ -252,8 +323,29 @@
 
 <script type="text/x-red" data-template-name="set-value">
 	<div class="form-row">
-	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
-	<input type="text" id="node-input-name">
+		<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
+		<input type="text" id="node-input-name">
+	</div>
+	<div class="form-row">
+		<label for="node-input-selector"><i class="fa fa-empire"></i> <span>By</span></label>
+		<select id="node-input-selector" style="width:125px !important">
+			<option value="id">id</option>
+			<option value="name">name</option>
+			<option value="link">link</option>
+			<option value="xpath">xpath</option>
+			<option value="tagName">tagName</option>
+			<option value="className">className</option>
+			<option value="linkText">linkText</option>
+			<option value="cssSelector">cssSelector</option>
+		</select>
+	</div>
+	<div class="form-row">
+		<label for="node-input-target"><i class="fa fa-empire"></i> <span>Target</span></label>
+		<input type="text" id="node-input-target">
+	</div>
+	<div class="form-row">
+		<label for="node-input-timeout"><i class="fa fa-globe"></i> <span>Timeout</span></label>
+		<input type="text" id="node-input-timeout" value="1000">
 	</div>
 </script>
 
@@ -267,6 +359,16 @@
 		defaults : {
 			name : {
 				value : ""
+			},
+			selector : {
+				value : ""
+			},
+			target : {
+				value : ""
+			},
+			timeout : {
+				value : 1000,
+				validate : RED.validators.number()
 			}
 		},
 		color : "#d8bfd8",
@@ -284,12 +386,33 @@
 
 <script type="text/x-red" data-template-name="get-value">
 	<div class="form-row">
-	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
-	<input type="text" id="node-input-name">
+		<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
+		<input type="text" id="node-input-name">
 	</div>
 	<div class="form-row">
-	<label for="node-input-expected"><i class="fa fa-globe"></i> <span>Expected</span></label>
-	<input type="text" id="node-input-expected">
+		<label for="node-input-expected"><i class="fa fa-globe"></i> <span>Expected</span></label>
+		<input type="text" id="node-input-expected">
+	</div>
+	<div class="form-row">
+		<label for="node-input-selector"><i class="fa fa-empire"></i> <span>By</span></label>
+		<select id="node-input-selector" style="width:125px !important">
+			<option value="id">id</option>
+			<option value="name">name</option>
+			<option value="link">link</option>
+			<option value="xpath">xpath</option>
+			<option value="tagName">tagName</option>
+			<option value="className">className</option>
+			<option value="linkText">linkText</option>
+			<option value="cssSelector">cssSelector</option>
+		</select>
+	</div>
+	<div class="form-row">
+		<label for="node-input-target"><i class="fa fa-empire"></i> <span>Target</span></label>
+		<input type="text" id="node-input-target">
+	</div>
+	<div class="form-row">
+		<label for="node-input-timeout"><i class="fa fa-globe"></i> <span>Timeout</span></label>
+		<input type="text" id="node-input-timeout" value="1000">
 	</div>
 </script>
 
@@ -308,6 +431,16 @@
 			},
 			expected : {
 				value : ""
+			},
+			selector : {
+				value : ""
+			},
+			target : {
+				value : ""
+			},
+			timeout : {
+				value : 1000,
+				validate : RED.validators.number()
 			}
 		},
 		color : "#d8bfd8",
@@ -325,12 +458,33 @@
 
 <script type="text/x-red" data-template-name="get-text">
 	<div class="form-row">
-	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
-	<input type="text" id="node-input-name">
+		<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
+		<input type="text" id="node-input-name">
 	</div>
 	<div class="form-row">
-	<label for="node-input-expected"><i class="fa fa-globe"></i> <span>Expected</span></label>
-	<input type="text" id="node-input-expected">
+		<label for="node-input-expected"><i class="fa fa-globe"></i> <span>Expected</span></label>
+		<input type="text" id="node-input-expected">
+	</div>
+	<div class="form-row">
+		<label for="node-input-selector"><i class="fa fa-empire"></i> <span>By</span></label>
+		<select id="node-input-selector" style="width:125px !important">
+			<option value="id">id</option>
+			<option value="name">name</option>
+			<option value="link">link</option>
+			<option value="xpath">xpath</option>
+			<option value="tagName">tagName</option>
+			<option value="className">className</option>
+			<option value="linkText">linkText</option>
+			<option value="cssSelector">cssSelector</option>
+		</select>
+	</div>
+	<div class="form-row">
+		<label for="node-input-target"><i class="fa fa-empire"></i> <span>Target</span></label>
+		<input type="text" id="node-input-target">
+	</div>
+	<div class="form-row">
+		<label for="node-input-timeout"><i class="fa fa-globe"></i> <span>Timeout</span></label>
+		<input type="text" id="node-input-timeout" value="1000">
 	</div>
 </script>
 
@@ -349,6 +503,16 @@
 			},
 			expected : {
 				value : ""
+			},
+			selector : {
+				value : ""
+			},
+			target : {
+				value : ""
+			},
+			timeout : {
+				value : 1000,
+				validate : RED.validators.number()
 			}
 		},
 		color : "#d8bfd8",
@@ -366,8 +530,8 @@
 
 <script type="text/x-red" data-template-name="screenshot">
 	<div class="form-row">
-	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
-	<input type="text" id="node-input-name">
+		<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
+		<input type="text" id="node-input-name">
 	</div>
 </script>
 
@@ -399,12 +563,12 @@
 
 <script type="text/x-red" data-template-name="nav-to">
 	<div class="form-row">
-	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
-	<input type="text" id="node-input-name">
+		<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
+		<input type="text" id="node-input-name">
 	</div>
 	<div class="form-row">
-	<label for="node-input-url"><i class="fa fa-globe"></i> <span>URL</span></label>
-	<input type="text" id="node-input-url">
+		<label for="node-input-url"><i class="fa fa-globe"></i> <span>URL</span></label>
+		<input type="text" id="node-input-url">
 	</div>
 </script>
 
@@ -439,8 +603,8 @@
 
 <script type="text/x-red" data-template-name="nav-back">
 	<div class="form-row">
-	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
-	<input type="text" id="node-input-name">
+		<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
+		<input type="text" id="node-input-name">
 	</div>
 </script>
 
@@ -471,8 +635,8 @@
 
 <script type="text/x-red" data-template-name="nav-forward">
 	<div class="form-row">
-	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
-	<input type="text" id="node-input-name">
+		<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
+		<input type="text" id="node-input-name">
 	</div>
 </script>
 
@@ -503,8 +667,8 @@
 
 <script type="text/x-red" data-template-name="nav-refresh">
 	<div class="form-row">
-	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
-	<input type="text" id="node-input-name">
+		<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
+		<input type="text" id="node-input-name">
 	</div>
 </script>
 
@@ -535,13 +699,13 @@
 
 <script type="text/x-red" data-template-name="run-script">
 	<div class="form-row">
-	<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
-	<input type="text" id="node-input-name">
+		<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
+		<input type="text" id="node-input-name">
 	</div>
 	<div class="form-row" style="margin-bottom: 0px;">
-	<label for="node-input-func"><i class="fa fa-wrench"></i> <span data-i18n="function.label.function"></span></label>
-	<input type="hidden" id="node-input-func" autofocus="autofocus">
-	<input type="hidden" id="node-input-noerr">
+		<label for="node-input-func"><i class="fa fa-wrench"></i> <span data-i18n="function.label.function"></span></label>
+		<input type="hidden" id="node-input-func" autofocus="autofocus">
+		<input type="hidden" id="node-input-noerr">
 	</div>
 	<div class="form-row node-text-editor-row">
 	<div style="height: 250px;" class="node-text-editor" id="node-input-func-editor" ></div>
@@ -628,19 +792,19 @@
 
 <script type="text/x-red" data-template-name="selenium-server">
 	<div class="form-row">
-	<ul style="background: #fff; min-width: 600px; margin-bottom: 20px;" id="node-config-selenium-server-tabs"></ul>
+		<ul style="background: #fff; min-width: 600px; margin-bottom: 20px;" id="node-config-selenium-server-tabs"></ul>
 	</div>
-	<div id="node-config-selenium-server-tabs-content" style="min-height: 170px;">
-	<div id="selenium-server-tab-connection" style="display:none">
-	<div class="form-row node-input-remoteurl">
-	<label for="node-config-input-remoteurl"><i class="fa fa-globe"></i> <span>Remote Url</span></label>
-	<input class="input-append-left" type="text" id="node-config-input-remoteurl" placeholder="http://localhost:4444/wd/hub" style="width: 40%;" >
-	</div>
-	<div class="form-row">
-	<label for="node-config-input-browser"><i class="fa fa-tag"></i> <span>Browser</span></label>
-	<input type="text" id="node-config-input-browser">
-	</div>
-	</div>
+		<div id="node-config-selenium-server-tabs-content" style="min-height: 170px;">
+			<div id="selenium-server-tab-connection" style="display:none">
+			<div class="form-row node-input-remoteurl">
+				<label for="node-config-input-remoteurl"><i class="fa fa-globe"></i> <span>Remote Url</span></label>
+				<input class="input-append-left" type="text" id="node-config-input-remoteurl" placeholder="http://localhost:4444/wd/hub" style="width: 40%;" >
+			</div>
+			<div class="form-row">
+				<label for="node-config-input-browser"><i class="fa fa-tag"></i> <span>Browser</span></label>
+				<input type="text" id="node-config-input-browser">
+			</div>
+		</div>
 	</div>
 </script>
 
