@@ -36,7 +36,7 @@
 <script type="text/x-red" data-help-name="open-web">
 	<p>Create an instance of selenium webdriver and connect to the Selenium Server when an event is triggered.</p>
 	<strong>Outputs:</strong>
-	<p><code>msg.error</code> When the title is unexpected or cannot find the element, the error with detail information.</p>
+	<p><code>msg.error</code> When the title is unexpected or cannot find element, this node generates the error with detail information</p>
 	<p><code>msg.driver</code> Always pass webdriver object to the next node for ad-hoc function code.</p>
 	<p><code>msg.element</code> If the element is found, it will be passed though the msg object to the next node.</p>
 	<p><code>msg.payload</code> contains the title of the opened web page. This payload value will be used to compare with the expected Web Title value if that value is set.</p>
@@ -154,7 +154,7 @@
 <script type="text/x-red" data-help-name="find-object">
 	<p>Find an object or element by using selenium webdriver <code>findElement()</code>.</p>
 	<strong>Outputs:</strong>
-	<p><code>msg.error</code> When the object is unexpected or cannot find the element, the error with detail information.</p>
+	<p><code>msg.error</code> When the object is unexpected or cannot find element, this node generates the error with detail information</p>
 	<p><code>msg.element</code> If the element is found, it will be passed though the msg object to the next node.</p>
 </script>
 
@@ -227,7 +227,7 @@
 <script type="text/x-red" data-help-name="send-keys">
 	<p>Send keyboard keys to the <code>msg.element</code> from previous node or after waiting for the expected element is located.</p>
 	<strong>Outputs:</strong>
-	<p><code>msg.error</code> When the object is unexpected or cannot find the element, the error with detail information.</p>
+	<p><code>msg.error</code> When the object is unexpected or cannot find element, this node generates the error with detail information</p>
 	<p><code>msg.element</code> If the element is found, it will be passed though the msg object to the next node.</p>
 </script>
 
@@ -297,7 +297,7 @@
 <script type="text/x-red" data-help-name="click-on">
 	<p>Click on the <code>msg.element</code> which is passed by previous node or after waiting for the expected element is located.</p>
 	<strong>Outputs:</strong>
-	<p><code>msg.error</code> When the object is unexpected or cannot find the element, the error with detail information.</p>
+	<p><code>msg.error</code> When the object is unexpected or cannot find element, this node generates the error with detail information</p>
 	<p><code>msg.element</code> If the element is found, it will be passed though the msg object to the next node.</p>
 </script>
 
@@ -363,7 +363,7 @@
 <script type="text/x-red" data-help-name="set-value">
 	<p>Set a value to the <code>value</code> attribute of the <code>msg.element</code> or after waiting for the expected element is located.</p>
 	<strong>Outputs:</strong>
-	<p><code>msg.error</code> When the object is unexpected or cannot find the element, the error with detail information.</p>
+	<p><code>msg.error</code> When the object is unexpected or cannot find element, this node generates the error with detail information</p>
 	<p><code>msg.element</code> If the element is found, it will be passed though the msg object to the next node.</p>
 </script>
 
@@ -433,7 +433,7 @@
 <script type="text/x-red" data-help-name="get-value">
 	<p>Get the value from <code>value</code> attribute of the <code>msg.element</code> or after waiting for the expected element is located.</p>
 	<strong>Outputs:</strong>
-	<p><code>msg.error</code> When the object is unexpected or cannot find the element, the error with detail information.</p>
+	<p><code>msg.error</code> When the object is unexpected or cannot find element, this node generates the error with detail information</p>
 	<p><code>msg.element</code> If the element is found, it will be passed though the msg object to the next node.</p>
 	<p><code>msg.payload</code> contains the result of the <code>value</code> attribute.</p>
 </script>
@@ -507,7 +507,7 @@
 <script type="text/x-red" data-help-name="get-text">
 	<p>Get the text of the <code>msg.element</code> passed from previous node or after waiting for the expected element is located.</p>
 	<strong>Outputs:</strong>
-	<p><code>msg.error</code> When the object is unexpected or cannot find the element, the error with detail information.</p>
+	<p><code>msg.error</code> When the object is unexpected or cannot find element, this node generates the error with detail information</p>
 	<p><code>msg.element</code> If the element is found, it will be passed though the msg object to the next node.</p>
 	<p><code>msg.payload</code> contains the result of the <code>text</code> attribute.</p>
 </script>
@@ -542,6 +542,158 @@
 		},
 		labelStyle : function() {
 			return this.name ? "node_label_italic" : "";
+		}
+	}); 
+</script>
+
+<script type="text/x-red" data-template-name="run-script">
+	<div class="form-row">
+		<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
+		<input type="text" id="node-input-name">
+	</div>
+	<div class="form-row">
+		<label for="node-input-selector"><i class="fa fa-empire"></i> <span>By</span></label>
+		<select id="node-input-selector" style="width:125px !important">
+			<option value="id">id</option>
+			<option value="name">name</option>
+			<option value="link">link</option>
+			<option value="xpath">xpath</option>
+			<option value="tagName">tagName</option>
+			<option value="className">className</option>
+			<option value="linkText">linkText</option>
+			<option value="cssSelector">cssSelector</option>
+		</select>
+	</div>
+	<div class="form-row">
+		<label for="node-input-target"><i class="fa fa-empire"></i> <span>Target</span></label>
+		<input type="text" id="node-input-target">
+	</div>
+	<div class="form-row">
+		<label for="node-input-timeout"><i class="fa fa-empire"></i> <span>Timeout</span></label>
+		<input type="text" id="node-input-timeout" value="1000">
+	</div>
+	<div class="form-row" style="margin-bottom: 0px;">
+		<label for="node-input-func"><i class="fa fa-wrench"></i> <span>Function</span></label>
+		<input type="hidden" id="node-input-func" autofocus="autofocus">
+		<input type="hidden" id="node-input-noerr">
+	</div>
+	<div class="form-row node-text-editor-row">
+	<div style="height: 250px;" class="node-text-editor" id="node-input-func-editor" ></div>
+	</div>
+</script>
+
+<script type="text/x-red" data-help-name="run-script">
+	<p>A function block where you can write code to run in the browser context of an existing element.</p>
+	<p>The parameters is passed in as a JavaScript object called <code>msg.driver</code> and <code>msg.element</code>.</p>
+	<strong>Outputs:</strong>
+	<p><code>msg.error</code> When the object is unexpected or cannot find element, this node generates the error with detail information</p>
+	<p><code>msg.element</code> If the element is found, it will be passed though the msg object to the next node.</p>	
+	<strong>Logging and Error Handling</strong>
+	<p>To log any information, or report an error, the following functions are available:</p>
+	<ul>
+	<li><code>node.log("Log")</code></li>
+	<li><code>node.warn("Warning")</code></li>
+	<li><code>node.error("Error")</code></li>
+	</ul>
+	</p>
+	<p>The Catch node can also be used to handle errors. To invoke a Catch node,
+	pass <code>msg</code> as a second argument to <code>node.error</code>:</p>
+	<pre>node.error("Error",msg)</pre>
+	<h4>Sending messages</h4>
+	<p>The function can either return the messages it wants to pass on to the next nodes
+	in the flow, or can call <code>node.send(messages)</code>.</p>
+	<p>It can return/send:</p>
+	<ul>
+	<li>a single message object - passed to nodes connected to the first output</li>
+	<li>an array of message objects - passed to nodes connected to the corresponding outputs</li>
+	</ul>
+	<p>If any element of the array is itself an array of messages, multiple
+	messages are sent to the corresponding output.</p>
+	<p>If null is returned, either by itself or as an element of the array, no
+	message is passed on.</p>
+	<p>See the <a target="_new" href="http://nodered.org/docs/writing-functions.html">online documentation</a> for more help.</p>
+</script>
+
+<script type="text/javascript">
+	RED.nodes.registerType('run-script', {
+		category : 'selenium',
+		defaults : {
+			name : {
+				value : ""
+			},
+			func : {
+				value : "\nreturn arguments[0].innerHTML;"
+			},
+			selector : {
+				value : ""
+			},
+			target : {
+				value : ""
+			},
+			timeout : {
+				value : 1000,
+				validate : RED.validators.number()
+			}
+		},
+		color : "#d8bfd8",
+		inputs : 1,
+		outputs : 1,
+		icon : "debug.png",
+		label : function() {
+			return this.name || "Run Script";
+		},
+		labelStyle : function() {
+			return this.name ? "node_label_italic" : "";
+		},
+		oneditprepare : function() {
+			var that = this;
+			function functionDialogResize() {
+				var rows = $("#dialog-form>div:not(.node-text-editor-row)");
+				var height = $("#dialog-form").height();
+				for (var i = 0; i < rows.size(); i++) {
+					height -= $(rows[i]).outerHeight(true);
+				}
+				var editorRow = $("#dialog-form>div.node-text-editor-row");
+				height -= (parseInt(editorRow.css("marginTop")) + parseInt(editorRow.css("marginBottom")));
+				$(".node-text-editor").css("height", height + "px");
+				that.editor.resize();
+			}
+
+
+			$("#dialog").on("dialogresize", functionDialogResize);
+			$("#dialog").one("dialogopen", function(ev) {
+				var size = $("#dialog").dialog('option', 'sizeCache-function');
+				if (size) {
+					$("#dialog").dialog('option', 'width', size.width);
+					$("#dialog").dialog('option', 'height', size.height);
+					functionDialogResize();
+				}
+			});
+			$("#dialog").one("dialogclose", function(ev, ui) {
+				var height = $("#dialog").dialog('option', 'height');
+				$("#dialog").off("dialogresize", functionDialogResize);
+			});
+
+			this.editor = RED.editor.createEditor({
+				id : 'node-input-func-editor',
+				mode : 'ace/mode/javascript',
+				value : $("#node-input-func").val()
+			});
+			this.editor.focus();
+		},
+		oneditsave : function() {
+			var annot = this.editor.getSession().getAnnotations();
+			this.noerr = 0;
+			$("#node-input-noerr").val(0);
+			for (var k = 0; k < annot.length; k++) {
+				//console.log(annot[k].type,":",annot[k].text, "on line", annot[k].row);
+				if (annot[k].type === "error") {
+					$("#node-input-noerr").val(annot.length);
+					this.noerr = annot.length;
+				}
+			}
+			$("#node-input-func").val(this.editor.getValue());
+			delete this.editor;
 		}
 	}); 
 </script>
@@ -711,99 +863,6 @@
 		},
 		labelStyle : function() {
 			return this.name ? "node_label_italic" : "";
-		}
-	}); 
-</script>
-
-<script type="text/x-red" data-template-name="run-script">
-	<div class="form-row">
-		<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
-		<input type="text" id="node-input-name">
-	</div>
-	<div class="form-row" style="margin-bottom: 0px;">
-		<label for="node-input-func"><i class="fa fa-wrench"></i> <span data-i18n="function.label.function"></span></label>
-		<input type="hidden" id="node-input-func" autofocus="autofocus">
-		<input type="hidden" id="node-input-noerr">
-	</div>
-	<div class="form-row node-text-editor-row">
-	<div style="height: 250px;" class="node-text-editor" id="node-input-func-editor" ></div>
-	</div>
-</script>
-
-<script type="text/x-red" data-help-name="run-script">
-	<p>Schedules a command to execute JavaScript in the context of the currently selected frame or window.</p>
-</script>
-
-<script type="text/javascript">
-	RED.nodes.registerType('run-script', {
-		category : 'selenium',
-		defaults : {
-			name : {
-				value : ""
-			},
-			func : {
-				value : "\nreturn arguments[0].innerHTML;"
-			},
-		},
-		color : "#d8bfd8",
-		inputs : 1,
-		outputs : 1,
-		icon : "debug.png",
-		label : function() {
-			return this.name || "Run Script";
-		},
-		labelStyle : function() {
-			return this.name ? "node_label_italic" : "";
-		},
-		oneditprepare : function() {
-			var that = this;
-			function functionDialogResize() {
-				var rows = $("#dialog-form>div:not(.node-text-editor-row)");
-				var height = $("#dialog-form").height();
-				for (var i = 0; i < rows.size(); i++) {
-					height -= $(rows[i]).outerHeight(true);
-				}
-				var editorRow = $("#dialog-form>div.node-text-editor-row");
-				height -= (parseInt(editorRow.css("marginTop")) + parseInt(editorRow.css("marginBottom")));
-				$(".node-text-editor").css("height", height + "px");
-				that.editor.resize();
-			}
-
-
-			$("#dialog").on("dialogresize", functionDialogResize);
-			$("#dialog").one("dialogopen", function(ev) {
-				var size = $("#dialog").dialog('option', 'sizeCache-function');
-				if (size) {
-					$("#dialog").dialog('option', 'width', size.width);
-					$("#dialog").dialog('option', 'height', size.height);
-					functionDialogResize();
-				}
-			});
-			$("#dialog").one("dialogclose", function(ev, ui) {
-				var height = $("#dialog").dialog('option', 'height');
-				$("#dialog").off("dialogresize", functionDialogResize);
-			});
-
-			this.editor = RED.editor.createEditor({
-				id : 'node-input-func-editor',
-				mode : 'ace/mode/javascript',
-				value : $("#node-input-func").val()
-			});
-			this.editor.focus();
-		},
-		oneditsave : function() {
-			var annot = this.editor.getSession().getAnnotations();
-			this.noerr = 0;
-			$("#node-input-noerr").val(0);
-			for (var k = 0; k < annot.length; k++) {
-				//console.log(annot[k].type,":",annot[k].text, "on line", annot[k].row);
-				if (annot[k].type === "error") {
-					$("#node-input-noerr").val(annot.length);
-					this.noerr = annot.length;
-				}
-			}
-			$("#node-input-func").val(this.editor.getValue());
-			delete this.editor;
 		}
 	}); 
 </script>

@@ -25,22 +25,22 @@ module.exports = function(RED) {
 	var isUtf8 = require('is-utf8');
 
 	function waitUntilElementLocated(node, msg, callback) {
-		if (msg.error) {			
+		if (msg.error) {
 			node.send(msg);
 		} else if (node.target && node.target != "") {
 			try {
-				msg.driver.wait(until.elementLocated(By[node.selector](node.target)), parseInt(node.timeout)).catch(function(errorback) {					
+				msg.driver.wait(until.elementLocated(By[node.selector](node.target)), parseInt(node.timeout)).catch(function(errorback) {
 					msg.error = {
 						name : node.name,
 						selector : node.selector,
 						target : node.target,
-						value : errorback
+						value : "catch timeout after " + node.timeout + " seconds"
 					};
 					node.status({
 						fill : "red",
 						shape : "ring",
 						text : "unexpected"
-					});
+					});					
 					node.send(msg);
 				}).then(function() {
 					msg.element = msg.driver.findElement(By[node.selector](node.target));
@@ -63,7 +63,6 @@ module.exports = function(RED) {
 				});
 				node.send(msg);
 			}
-
 		} else {
 			if ( typeof (callback) !== "undefined") {
 				callback(msg.element);
@@ -71,20 +70,20 @@ module.exports = function(RED) {
 		}
 	}
 
-	function sendErrorMsg(node, msg, text) {		
+	function sendErrorMsg(node, msg, text) {
 		getAbsoluteXPath(msg.driver, msg.element).then(function(xpath) {
 			msg.error = {
 				name : node.name,
 				xpath : xpath,
 				expected : node.expected,
 				value : text
-			};
-			node.send(msg);
+			};			
 			node.status({
 				fill : "red",
 				shape : "ring",
 				text : "unexpected"
 			});
+			node.send(msg);
 		});
 	};
 
@@ -94,13 +93,14 @@ module.exports = function(RED) {
 				msg.payload = text;
 				if (node.expected && node.expected != "" && node.expected != text) {
 					sendErrorMsg(node, msg, text);
-				} else {
-					node.send(msg);
+				} else {					
 					node.status({
 						fill : "green",
 						shape : "ring",
 						text : "passed"
 					});
+					delete msg.error;
+					node.send(msg);
 				}
 			}).catch(function(errorback) {
 				node.send(msg);
@@ -116,13 +116,14 @@ module.exports = function(RED) {
 				msg.payload = text;
 				if (node.expected && node.expected != "" && node.expected != text) {
 					sendErrorMsg(node, msg, text);
-				} else {
-					node.send(msg);
+				} else {					
 					node.status({
 						fill : "green",
 						shape : "ring",
 						text : "passed"
 					});
+					delete msg.error;
+					node.send(msg);
 				}
 			});
 		} catch (ex) {
@@ -133,6 +134,12 @@ module.exports = function(RED) {
 	function setValueNode(node, msg, callback) {
 		try {
 			msg.driver.executeScript("arguments[0].setAttribute('value', '" + node.value + "')", msg.element).then(function() {
+				node.status({
+					fill : "green",
+					shape : "ring",
+					text : "done"
+				});
+				delete msg.error;
 				node.send(msg);
 			});
 		} catch (ex) {
@@ -143,6 +150,12 @@ module.exports = function(RED) {
 	function clickOnNode(node, msg) {
 		try {
 			msg.element.click().then(function() {
+				node.status({
+					fill : "green",
+					shape : "ring",
+					text : "done"
+				});
+				delete msg.error;
 				node.send(msg);
 			});
 		} catch (ex) {
@@ -153,6 +166,46 @@ module.exports = function(RED) {
 	function sendKeysNode(node, msg) {
 		try {
 			msg.element.sendKeys(node.keys).then(function() {
+				node.status({
+					fill : "green",
+					shape : "ring",
+					text : "done"
+				});
+				delete msg.error;
+				node.send(msg);
+			});
+		} catch (ex) {
+			node.send(msg);
+		}
+	};
+
+	function runScriptNode(node, msg) {
+		try {
+			msg.driver.executeScript(node.func, msg.element).then(function(results) {
+				node.status({
+					fill : "green",
+					shape : "ring",
+					text : "done"
+				});
+				delete msg.error;
+				msg.payload = results;
+				node.send(msg);
+			});
+		} catch (ex) {
+			node.send(msg);
+		}
+	}
+
+	function takeScreenShotNode(node, msg) {
+		try {
+			msg.element.takeScreenshot().then(function(base64PNG) {
+				msg.image = base64PNG;
+				node.status({
+					fill : "green",
+					shape : "ring",
+					text : "done"
+				});
+				delete msg.error;
 				node.send(msg);
 			});
 		} catch (ex) {
@@ -437,19 +490,29 @@ module.exports = function(RED) {
 
 	RED.nodes.registerType("get-text", SeleniumGetTextNode);
 
+	function SeleniumRunScriptNode(n) {
+		RED.nodes.createNode(this, n);
+		this.name = n.name;
+		this.func = n.func;
+		var node = this;
+		this.on("input", function(msg) {
+			waitUntilElementLocated(node, msg, function(element) {
+				runScriptNode(node, msg);
+			});
+		});
+	}
+
+
+	RED.nodes.registerType("run-script", SeleniumRunScriptNode);
+
 	function SeleniumTakeScreenshotNode(n) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
 		var node = this;
 		this.on("input", function(msg) {
-			if (msg.element) {
-				msg.element.takeScreenshot().then(function(base64PNG) {
-					msg.image = base64PNG;
-					node.send(msg);
-				});
-			} else {
-				node.send(msg);
-			}
+			waitUntilElementLocated(node, msg, function(element) {
+				takeScreenShotNode(node, msg);
+			});
 		});
 	}
 
@@ -512,24 +575,4 @@ module.exports = function(RED) {
 
 
 	RED.nodes.registerType("nav-refresh", SeleniumNavRefreshNode);
-
-	function SeleniumRunScriptNode(n) {
-		RED.nodes.createNode(this, n);
-		this.name = n.name;
-		this.func = n.func;
-		var node = this;
-		this.on("input", function(msg) {
-			if (msg.element) {
-				msg.driver.executeScript(node.func, msg.element).then(function(results) {
-					msg.payload = results;
-					node.send(msg);
-				});
-			} else {
-				node.send(msg);
-			}
-		});
-	}
-
-
-	RED.nodes.registerType("run-script", SeleniumRunScriptNode);
 };
