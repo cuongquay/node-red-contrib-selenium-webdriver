@@ -25,19 +25,17 @@ module.exports = function(RED) {
 	var isUtf8 = require('is-utf8');
 
 	function waitUntilElementLocated(node, msg, callback) {
-		if (node.target && node.target != "") {
+		if (msg.error) {			
+			node.send(msg);
+		} else if (node.target && node.target != "") {
 			try {
-				msg.driver.wait(until.elementLocated(By[node.selector](node.target)), parseInt(node.timeout)).catch(function(errorback) {
-					if (!msg.errors) {
-						msg.errors = new Array();
-					}
-					msg.errors.push({
+				msg.driver.wait(until.elementLocated(By[node.selector](node.target)), parseInt(node.timeout)).catch(function(errorback) {					
+					msg.error = {
 						name : node.name,
 						selector : node.selector,
-						target : node.value,
+						target : node.target,
 						value : errorback
-					});
-					delete msg.element;
+					};
 					node.status({
 						fill : "red",
 						shape : "ring",
@@ -45,8 +43,8 @@ module.exports = function(RED) {
 					});
 					node.send(msg);
 				}).then(function() {
-					msg.element = msg.driver.findElement(By[node.selector](node.target));					
-					if ( typeof (callback) !== "undefined") {						
+					msg.element = msg.driver.findElement(By[node.selector](node.target));
+					if ( typeof (callback) !== "undefined") {
 						callback(msg.element);
 					}
 				}, function(err) {
@@ -73,17 +71,14 @@ module.exports = function(RED) {
 		}
 	}
 
-	function sendErrorMsg(node, msg, text) {
-		if (!msg.errors) {
-			msg.errors = new Array();
-		}
+	function sendErrorMsg(node, msg, text) {		
 		getAbsoluteXPath(msg.driver, msg.element).then(function(xpath) {
-			msg.errors.push({
+			msg.error = {
 				name : node.name,
 				xpath : xpath,
 				expected : node.expected,
 				value : text
-			});
+			};
 			node.send(msg);
 			node.status({
 				fill : "red",

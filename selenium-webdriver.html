@@ -35,7 +35,10 @@
 
 <script type="text/x-red" data-help-name="open-web">
 	<p>Create an instance of selenium webdriver and connect to the Selenium Server when an event is triggered.</p>
-	<p><code>msg.driver</code> contains the web driver object.</p>
+	<strong>Outputs:</strong>
+	<p><code>msg.error</code> When the title is unexpected or cannot find the element, the error with detail information.</p>
+	<p><code>msg.driver</code> Always pass webdriver object to the next node for ad-hoc function code.</p>
+	<p><code>msg.element</code> If the element is found, it will be passed though the msg object to the next node.</p>
 	<p><code>msg.payload</code> contains the title of the opened web page. This payload value will be used to compare with the expected Web Title value if that value is set.</p>
 </script>
 
@@ -150,7 +153,9 @@
 
 <script type="text/x-red" data-help-name="find-object">
 	<p>Find an object or element by using selenium webdriver <code>findElement()</code>.</p>
-	<p>Output is <code>msg.element</code> contains the DOM element object.</p>
+	<strong>Outputs:</strong>
+	<p><code>msg.error</code> When the object is unexpected or cannot find the element, the error with detail information.</p>
+	<p><code>msg.element</code> If the element is found, it will be passed though the msg object to the next node.</p>
 </script>
 
 <script type="text/javascript">
@@ -220,7 +225,10 @@
 </script>
 
 <script type="text/x-red" data-help-name="send-keys">
-	<p>Send keyboard keys to the <code>msg.element</code> from previous node with charracters.</p>
+	<p>Send keyboard keys to the <code>msg.element</code> from previous node or after waiting for the expected element is located.</p>
+	<strong>Outputs:</strong>
+	<p><code>msg.error</code> When the object is unexpected or cannot find the element, the error with detail information.</p>
+	<p><code>msg.element</code> If the element is found, it will be passed though the msg object to the next node.</p>
 </script>
 
 <script type="text/javascript">
@@ -287,7 +295,10 @@
 </script>
 
 <script type="text/x-red" data-help-name="click-on">
-	<p>Click on the <code>msg.element</code> which is passed by previous node.</p>
+	<p>Click on the <code>msg.element</code> which is passed by previous node or after waiting for the expected element is located.</p>
+	<strong>Outputs:</strong>
+	<p><code>msg.error</code> When the object is unexpected or cannot find the element, the error with detail information.</p>
+	<p><code>msg.element</code> If the element is found, it will be passed though the msg object to the next node.</p>
 </script>
 
 <script type="text/javascript">
@@ -350,7 +361,10 @@
 </script>
 
 <script type="text/x-red" data-help-name="set-value">
-	<p>Set a value to the <code>value</code> attribute of the <code>msg.element</code>.</p>
+	<p>Set a value to the <code>value</code> attribute of the <code>msg.element</code> or after waiting for the expected element is located.</p>
+	<strong>Outputs:</strong>
+	<p><code>msg.error</code> When the object is unexpected or cannot find the element, the error with detail information.</p>
+	<p><code>msg.element</code> If the element is found, it will be passed though the msg object to the next node.</p>
 </script>
 
 <script type="text/javascript">
@@ -417,9 +431,11 @@
 </script>
 
 <script type="text/x-red" data-help-name="get-value">
-	<p>Get the value from <code>value</code> attribute of the <code>msg.element</code>.</p>
+	<p>Get the value from <code>value</code> attribute of the <code>msg.element</code> or after waiting for the expected element is located.</p>
+	<strong>Outputs:</strong>
+	<p><code>msg.error</code> When the object is unexpected or cannot find the element, the error with detail information.</p>
+	<p><code>msg.element</code> If the element is found, it will be passed though the msg object to the next node.</p>
 	<p><code>msg.payload</code> contains the result of the <code>value</code> attribute.</p>
-	<p><code>msg.errors</code> object is set when the value is different from the expected value.</p>
 </script>
 
 <script type="text/javascript">
@@ -489,9 +505,11 @@
 </script>
 
 <script type="text/x-red" data-help-name="get-text">
-	<p>Get the text of the <code>msg.element</code> passed from previous node.</p>
-	<p><code>msg.payload</code> contains the inner text of the <code>msg.element</code>.</p>
-	<p><code>msg.errors</code> object is set when the text is different from the expected value.</p>
+	<p>Get the text of the <code>msg.element</code> passed from previous node or after waiting for the expected element is located.</p>
+	<strong>Outputs:</strong>
+	<p><code>msg.error</code> When the object is unexpected or cannot find the element, the error with detail information.</p>
+	<p><code>msg.element</code> If the element is found, it will be passed though the msg object to the next node.</p>
+	<p><code>msg.payload</code> contains the result of the <code>text</code> attribute.</p>
 </script>
 
 <script type="text/javascript">
