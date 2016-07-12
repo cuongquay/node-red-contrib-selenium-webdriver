@@ -109,6 +109,29 @@ module.exports = function(RED) {
 			node.send(msg);
 		}
 	};
+	
+	function getAttributeNode(node, msg) {
+		try {
+			msg.element.getAttribute(node.attribute).then(function(text) {
+				msg.payload = text;
+				if (node.expected && node.expected != "" && node.expected != text) {
+					sendErrorMsg(node, msg, text);
+				} else {					
+					node.status({
+						fill : "green",
+						shape : "ring",
+						text : "passed"
+					});
+					delete msg.error;
+					node.send(msg);
+				}
+			}).catch(function(errorback) {
+				node.send(msg);
+			});
+		} catch (ex) {
+			node.send(msg);
+		}
+	};
 
 	function getTextNode(node, msg) {
 		try {
@@ -471,6 +494,25 @@ module.exports = function(RED) {
 
 
 	RED.nodes.registerType("get-value", SeleniumGetValueNode);
+	
+	function SeleniumGetAttributeNode(n) {
+		RED.nodes.createNode(this, n);
+		this.name = n.name;
+		this.expected = n.expected;
+		this.selector = n.selector;
+		this.timeout = n.timeout;
+		this.target = n.target;
+		var node = this;
+
+		this.on("input", function(msg) {
+			waitUntilElementLocated(node, msg, function(element) {
+				getAttributeNode(node, msg);
+			});
+		});
+	}
+
+
+	RED.nodes.registerType("get-attribute", SeleniumGetValueNode);
 
 	function SeleniumGetTextNode(n) {
 		RED.nodes.createNode(this, n);
