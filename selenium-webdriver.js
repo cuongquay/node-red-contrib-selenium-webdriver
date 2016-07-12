@@ -40,12 +40,15 @@ module.exports = function(RED) {
 						fill : "red",
 						shape : "ring",
 						text : "unexpected"
-					});					
-					node.send(msg);
+					});
 				}).then(function() {
-					msg.element = msg.driver.findElement(By[node.selector](node.target));
-					if ( typeof (callback) !== "undefined") {
-						callback(msg.element);
+					if (msg.error) {
+						node.send(msg);
+					} else {
+						msg.element = msg.driver.findElement(By[node.selector](node.target));
+						if ( typeof (callback) !== "undefined") {
+							callback(msg.element);
+						}
 					}
 				}, function(err) {
 					node.status({
@@ -77,7 +80,7 @@ module.exports = function(RED) {
 				xpath : xpath,
 				expected : node.expected,
 				value : text
-			};			
+			};
 			node.status({
 				fill : "red",
 				shape : "ring",
@@ -93,7 +96,7 @@ module.exports = function(RED) {
 				msg.payload = text;
 				if (node.expected && node.expected != "" && node.expected != text) {
 					sendErrorMsg(node, msg, text);
-				} else {					
+				} else if (!msg.error) {
 					node.status({
 						fill : "green",
 						shape : "ring",
@@ -103,20 +106,20 @@ module.exports = function(RED) {
 					node.send(msg);
 				}
 			}).catch(function(errorback) {
-				node.send(msg);
+				sendErrorMsg(node, msg, "catch timeout after " + node.timeout + " seconds");
 			});
 		} catch (ex) {
 			node.send(msg);
 		}
 	};
-	
+
 	function getAttributeNode(node, msg) {
 		try {
 			msg.element.getAttribute(node.attribute).then(function(text) {
 				msg.payload = text;
 				if (node.expected && node.expected != "" && node.expected != text) {
 					sendErrorMsg(node, msg, text);
-				} else {					
+				} else if (!msg.error) {
 					node.status({
 						fill : "green",
 						shape : "ring",
@@ -126,7 +129,7 @@ module.exports = function(RED) {
 					node.send(msg);
 				}
 			}).catch(function(errorback) {
-				node.send(msg);
+				sendErrorMsg(node, msg, "catch timeout after " + node.timeout + " seconds");
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -139,7 +142,7 @@ module.exports = function(RED) {
 				msg.payload = text;
 				if (node.expected && node.expected != "" && node.expected != text) {
 					sendErrorMsg(node, msg, text);
-				} else {					
+				} else if (!msg.error) {
 					node.status({
 						fill : "green",
 						shape : "ring",
@@ -149,7 +152,7 @@ module.exports = function(RED) {
 					node.send(msg);
 				}
 			}).catch(function(errorback) {
-				node.send(msg);
+				sendErrorMsg(node, msg, "catch timeout after " + node.timeout + " seconds");
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -159,15 +162,18 @@ module.exports = function(RED) {
 	function setValueNode(node, msg, callback) {
 		try {
 			msg.driver.executeScript("arguments[0].setAttribute('value', '" + node.value + "')", msg.element).then(function() {
-				node.status({
-					fill : "green",
-					shape : "ring",
-					text : "done"
-				});
-				delete msg.error;
-				node.send(msg);
+				if (!msg.error) {
+					node.status({
+						fill : "green",
+						shape : "ring",
+						text : "done"
+					});
+					delete msg.error;
+					node.send(msg);
+				}
+
 			}).catch(function(errorback) {
-				node.send(msg);
+				sendErrorMsg(node, msg, "catch timeout after " + node.timeout + " seconds");
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -177,15 +183,17 @@ module.exports = function(RED) {
 	function clickOnNode(node, msg) {
 		try {
 			msg.element.click().then(function() {
-				node.status({
-					fill : "green",
-					shape : "ring",
-					text : "done"
-				});
-				delete msg.error;
-				node.send(msg);
+				if (!msg.error) {
+					node.status({
+						fill : "green",
+						shape : "ring",
+						text : "done"
+					});
+					delete msg.error;
+					node.send(msg);
+				}
 			}).catch(function(errorback) {
-				node.send(msg);
+				sendErrorMsg(node, msg, "catch timeout after " + node.timeout + " seconds");
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -195,15 +203,17 @@ module.exports = function(RED) {
 	function sendKeysNode(node, msg) {
 		try {
 			msg.element.sendKeys(node.keys).then(function() {
-				node.status({
-					fill : "green",
-					shape : "ring",
-					text : "done"
-				});
-				delete msg.error;
-				node.send(msg);
+				if (!msg.error) {
+					node.status({
+						fill : "green",
+						shape : "ring",
+						text : "done"
+					});
+					delete msg.error;
+					node.send(msg);
+				}
 			}).catch(function(errorback) {
-				node.send(msg);
+				sendErrorMsg(node, msg, "catch timeout after " + node.timeout + " seconds");
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -213,16 +223,18 @@ module.exports = function(RED) {
 	function runScriptNode(node, msg) {
 		try {
 			msg.driver.executeScript(node.func, msg.element).then(function(results) {
-				node.status({
-					fill : "green",
-					shape : "ring",
-					text : "done"
-				});
-				delete msg.error;
-				msg.payload = results;
-				node.send(msg);
+				if (!msg.error) {
+					node.status({
+						fill : "green",
+						shape : "ring",
+						text : "done"
+					});
+					delete msg.error;
+					msg.payload = results;
+					node.send(msg);
+				}
 			}).catch(function(errorback) {
-				node.send(msg);
+				sendErrorMsg(node, msg, "catch timeout after " + node.timeout + " seconds");
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -232,16 +244,18 @@ module.exports = function(RED) {
 	function takeScreenShotNode(node, msg) {
 		try {
 			msg.element.takeScreenshot().then(function(base64PNG) {
-				msg.image = base64PNG;
-				node.status({
-					fill : "green",
-					shape : "ring",
-					text : "done"
-				});
-				delete msg.error;
-				node.send(msg);
+				if (!msg.error) {
+					msg.image = base64PNG;
+					node.status({
+						fill : "green",
+						shape : "ring",
+						text : "done"
+					});
+					delete msg.error;
+					node.send(msg);
+				}
 			}).catch(function(errorback) {
-				node.send(msg);
+				sendErrorMsg(node, msg, "catch timeout after " + node.timeout + " seconds");
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -506,7 +520,7 @@ module.exports = function(RED) {
 
 
 	RED.nodes.registerType("get-value", SeleniumGetValueNode);
-	
+
 	function SeleniumGetAttributeNode(n) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
