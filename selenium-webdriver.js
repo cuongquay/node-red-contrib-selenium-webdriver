@@ -114,9 +114,9 @@ module.exports = function(RED) {
 	};
 
 	function getAttributeNode(node, msg) {
-		try {
+		try {			
 			msg.element.getAttribute(node.attribute).then(function(text) {
-				msg.payload = text;
+				msg.payload = text;			
 				if (node.expected && node.expected != "" && node.expected != text) {
 					sendErrorMsg(node, msg, text);
 				} else if (!msg.error) {
@@ -539,7 +539,7 @@ module.exports = function(RED) {
 	}
 
 
-	RED.nodes.registerType("get-attribute", SeleniumGetValueNode);
+	RED.nodes.registerType("get-attribute", SeleniumGetAttributeNode);
 
 	function SeleniumGetTextNode(n) {
 		RED.nodes.createNode(this, n);
