@@ -24,6 +24,147 @@ module.exports = function(RED) {
 	    until = webdriver.until;
 	var isUtf8 = require('is-utf8');
 
+	function waitUntilElementLocated(node, msg, callback) {
+		if (node.target && node.target != "") {
+			try {
+				msg.driver.wait(until.elementLocated(By[node.selector](node.target)), parseInt(node.timeout)).catch(function(errorback) {
+					if (!msg.errors) {
+						msg.errors = new Array();
+					}
+					msg.errors.push({
+						name : node.name,
+						selector : node.selector,
+						target : node.value,
+						value : errorback
+					});
+					delete msg.element;
+					node.status({
+						fill : "red",
+						shape : "ring",
+						text : "unexpected"
+					});
+					node.send(msg);
+				}).then(function() {
+					msg.element = msg.driver.findElement(By[node.selector](node.target));					
+					if ( typeof (callback) !== "undefined") {						
+						callback(msg.element);
+					}
+				}, function(err) {
+					node.status({
+						fill : "red",
+						shape : "ring",
+						text : "error"
+					});
+					node.send(msg);
+				});
+			} catch (ex) {
+				node.status({
+					fill : "red",
+					shape : "ring",
+					text : "exception"
+				});
+				node.send(msg);
+			}
+
+		} else {
+			if ( typeof (callback) !== "undefined") {
+				callback(msg.element);
+			}
+		}
+	}
+
+	function sendErrorMsg(node, msg, text) {
+		if (!msg.errors) {
+			msg.errors = new Array();
+		}
+		getAbsoluteXPath(msg.driver, msg.element).then(function(xpath) {
+			msg.errors.push({
+				name : node.name,
+				xpath : xpath,
+				expected : node.expected,
+				value : text
+			});
+			node.send(msg);
+			node.status({
+				fill : "red",
+				shape : "ring",
+				text : "unexpected"
+			});
+		});
+	};
+
+	function getValueNode(node, msg) {
+		try {
+			msg.element.getAttribute("value").then(function(text) {
+				msg.payload = text;
+				if (node.expected && node.expected != "" && node.expected != text) {
+					sendErrorMsg(node, msg, text);
+				} else {
+					node.send(msg);
+					node.status({
+						fill : "green",
+						shape : "ring",
+						text : "passed"
+					});
+				}
+			}).catch(function(errorback) {
+				node.send(msg);
+			});
+		} catch (ex) {
+			node.send(msg);
+		}
+	};
+
+	function getTextNode(node, msg) {
+		try {
+			msg.element.getText().then(function(text) {
+				msg.payload = text;
+				if (node.expected && node.expected != "" && node.expected != text) {
+					sendErrorMsg(node, msg, text);
+				} else {
+					node.send(msg);
+					node.status({
+						fill : "green",
+						shape : "ring",
+						text : "passed"
+					});
+				}
+			});
+		} catch (ex) {
+			node.send(msg);
+		}
+	};
+
+	function setValueNode(node, msg, callback) {
+		try {
+			msg.driver.executeScript("arguments[0].setAttribute('value', '" + node.value + "')", msg.element).then(function() {
+				node.send(msg);
+			});
+		} catch (ex) {
+			node.send(msg);
+		}
+	};
+
+	function clickOnNode(node, msg) {
+		try {
+			msg.element.click().then(function() {
+				node.send(msg);
+			});
+		} catch (ex) {
+			node.send(msg);
+		}
+	}
+
+	function sendKeysNode(node, msg) {
+		try {
+			msg.element.sendKeys(node.keys).then(function() {
+				node.send(msg);
+			});
+		} catch (ex) {
+			node.send(msg);
+		}
+	};
+
 	function getAbsoluteXPath(driver, element) {
 		return driver.executeScript("function absoluteXPath(element) {" + "var comp, comps = [];" + "var parent = null;" + "var xpath = '';" + "var getPos = function(element) {" + "var position = 1, curNode;" + "if (element.nodeType == Node.ATTRIBUTE_NODE) {" + "return null;" + "}" + "for (curNode = element.previousSibling; curNode; curNode = curNode.previousSibling){" + "if (curNode.nodeName == element.nodeName) {" + "++position;" + "}" + "}" + "return position;" + "};" + "if (element instanceof Document) {" + "return '/';" + "}" + "for (; element && !(element instanceof Document); element = element.nodeType == Node.ATTRIBUTE_NODE ? element.ownerElement : element.parentNode) {" + "comp = comps[comps.length] = {};" + "switch (element.nodeType) {" + "case Node.TEXT_NODE:" + "comp.name = 'text()';" + "break;" + "case Node.ATTRIBUTE_NODE:" + "comp.name = '@' + element.nodeName;" + "break;" + "case Node.PROCESSING_INSTRUCTION_NODE:" + "comp.name = 'processing-instruction()';" + "break;" + "case Node.COMMENT_NODE:" + "comp.name = 'comment()';" + "break;" + "case Node.ELEMENT_NODE:" + "comp.name = element.nodeName;" + "break;" + "}" + "comp.position = getPos(element);" + "}" + "for (var i = comps.length - 1; i >= 0; i--) {" + "comp = comps[i];" + "xpath += '/' + comp.name.toLowerCase();" + "if (comp.position !== null) {" + "xpath += '[' + comp.position + ']';" + "}" + "}" + "return xpath;" + "} return absoluteXPath(arguments[0]);", element);
 	}
@@ -202,28 +343,8 @@ module.exports = function(RED) {
 		this.target = n.target;
 		var node = this;
 		this.on("input", function(msg) {
-			msg.driver.wait(until.elementLocated(By[node.selector](node.target)), parseInt(node.timeout)).catch(function(errorback) {
-				if (!msg.errors) {
-					msg.errors = new Array();
-				}
-				msg.errors.push({
-					name : node.name,
-					selector : node.selector,
-					target : node.value,
-					value : errorback
-				});
-				delete msg.element;
-				node.status({
-					fill : "red",
-					shape : "ring",
-					text : "unexpected"
-				});
+			waitUntilElementLocated(node, msg, function(element) {
 				node.send(msg);
-			}).then(function() {
-				msg.element = msg.driver.findElement(By[node.selector](node.target));
-				node.send(msg);
-			}, function(err) {
-
 			});
 		});
 	}
@@ -240,38 +361,9 @@ module.exports = function(RED) {
 		this.target = n.target;
 		var node = this;
 		this.on("input", function(msg) {
-			if (node.target && node.target != "") {
-				msg.driver.wait(until.elementLocated(By[node.selector](node.target)), parseInt(node.timeout)).catch(function(errorback) {
-					if (!msg.errors) {
-						msg.errors = new Array();
-					}
-					msg.errors.push({
-						name : node.name,
-						selector : node.selector,
-						target : node.value,
-						value : errorback
-					});
-					delete msg.element;
-					node.status({
-						fill : "red",
-						shape : "ring",
-						text : "unexpected"
-					});
-					node.send(msg);
-				}).then(function() {
-					msg.element = msg.driver.findElement(By[node.selector](node.target));
-					msg.element.sendKeys(node.keys).then(function() {
-						node.send(msg);
-					});
-				}, function(err) {
-					node.send(msg);
-				});
-			} else {
-				msg.element.sendKeys(node.keys).then(function() {
-					node.send(msg);
-				});
-			}
-
+			waitUntilElementLocated(node, msg, function(element) {
+				sendKeysNode(node, msg);
+			});
 		});
 	}
 
@@ -286,38 +378,9 @@ module.exports = function(RED) {
 		this.target = n.target;
 		var node = this;
 		this.on("input", function(msg) {
-			if (node.target && node.target != "") {
-				msg.driver.wait(until.elementLocated(By[node.selector](node.target)), parseInt(node.timeout)).catch(function(errorback) {
-					if (!msg.errors) {
-						msg.errors = new Array();
-					}
-					msg.errors.push({
-						name : node.name,
-						selector : node.selector,
-						target : node.value,
-						value : errorback
-					});
-					delete msg.element;
-					node.status({
-						fill : "red",
-						shape : "ring",
-						text : "unexpected"
-					});
-					node.send(msg);
-				}).then(function() {
-					msg.element = msg.driver.findElement(By[node.selector](node.target));
-					msg.element.click().then(function() {
-						node.send(msg);
-					});
-				}, function(err) {
-					node.send(msg);
-				});
-			} else {
-				msg.element.click().then(function() {
-					node.send(msg);
-				});
-			}
-
+			waitUntilElementLocated(node, msg, function(element) {
+				clickOnNode(node, msg);
+			});
 		});
 	}
 
@@ -333,38 +396,9 @@ module.exports = function(RED) {
 		this.target = n.target;
 		var node = this;
 		this.on("input", function(msg) {
-			if (node.target && node.target != "") {
-				msg.driver.wait(until.elementLocated(By[node.selector](node.target)), parseInt(node.timeout)).catch(function(errorback) {
-					if (!msg.errors) {
-						msg.errors = new Array();
-					}
-					msg.errors.push({
-						name : node.name,
-						selector : node.selector,
-						target : node.value,
-						value : errorback
-					});
-					delete msg.element;
-					node.status({
-						fill : "red",
-						shape : "ring",
-						text : "unexpected"
-					});
-					node.send(msg);
-				}).then(function() {
-					msg.element = msg.driver.findElement(By[node.selector](node.target));
-					msg.driver.executeScript("arguments[0].setAttribute('value', '" + node.value + "')", msg.element).then(function() {
-						node.send(msg);
-					});
-				}, function(err) {
-					node.send(msg);
-				});
-			} else {
-				msg.driver.executeScript("arguments[0].setAttribute('value', '" + node.value + "')", msg.element).then(function() {
-					node.send(msg);
-				});
-			}
-
+			waitUntilElementLocated(node, msg, function(element) {
+				setValueNode(node, msg);
+			});
 		});
 	}
 
@@ -379,99 +413,11 @@ module.exports = function(RED) {
 		this.timeout = n.timeout;
 		this.target = n.target;
 		var node = this;
-		this.on("input", function(msg) {
-			if (node.target && node.target != "") {
-				msg.driver.wait(until.elementLocated(By[node.selector](node.target)), parseInt(node.timeout)).catch(function(errorback) {
-					if (!msg.errors) {
-						msg.errors = new Array();
-					}
-					msg.errors.push({
-						name : node.name,
-						selector : node.selector,
-						target : node.value,
-						value : errorback
-					});
-					delete msg.element;
-					node.status({
-						fill : "red",
-						shape : "ring",
-						text : "unexpected"
-					});
-					node.send(msg);
-				}).then(function() {
-					msg.element = msg.driver.findElement(By[node.selector](node.target));
-					try {
-						msg.element.getAttribute("value").then(function(text) {
-							msg.payload = text;
-							if (node.expected && node.expected != "" && node.expected != text) {
-								if (!msg.errors) {
-									msg.errors = new Array();
-								}
-								getAbsoluteXPath(msg.driver, msg.element).then(function(xpath) {
-									msg.errors.push({
-										name : node.name,
-										xpath : xpath,
-										expected : node.expected,
-										value : text
-									});
-									node.send(msg);
-									node.status({
-										fill : "red",
-										shape : "ring",
-										text : "unexpected"
-									});
-								});
-							} else {
-								node.send(msg);
-								node.status({
-									fill : "green",
-									shape : "ring",
-									text : "passed"
-								});
-							}
-						});
-					} catch (ex) {
-						node.send(msg);
-					}
-				}, function(err) {
-					node.send(msg);
-				});
-			} else {
-				try {
-					msg.element.getAttribute("value").then(function(text) {
-						msg.payload = text;
-						if (node.expected && node.expected != "" && node.expected != text) {
-							if (!msg.errors) {
-								msg.errors = new Array();
-							}
-							getAbsoluteXPath(msg.driver, msg.element).then(function(xpath) {
-								msg.errors.push({
-									name : node.name,
-									xpath : xpath,
-									expected : node.expected,
-									value : text
-								});
-								node.send(msg);
-								node.status({
-									fill : "red",
-									shape : "ring",
-									text : "unexpected"
-								});
-							});
-						} else {
-							node.send(msg);
-							node.status({
-								fill : "green",
-								shape : "ring",
-								text : "passed"
-							});
-						}
-					});
-				} catch (ex) {
-					node.send(msg);
-				}
-			}
 
+		this.on("input", function(msg) {
+			waitUntilElementLocated(node, msg, function(element) {
+				getValueNode(node, msg);
+			});
 		});
 	}
 
@@ -487,98 +433,9 @@ module.exports = function(RED) {
 		this.target = n.target;
 		var node = this;
 		this.on("input", function(msg) {
-			if (node.target && node.target != "") {
-				msg.driver.wait(until.elementLocated(By[node.selector](node.target)), parseInt(node.timeout)).catch(function(errorback) {
-					if (!msg.errors) {
-						msg.errors = new Array();
-					}
-					msg.errors.push({
-						name : node.name,
-						selector : node.selector,
-						target : node.value,
-						value : errorback
-					});
-					delete msg.element;
-					node.status({
-						fill : "red",
-						shape : "ring",
-						text : "unexpected"
-					});
-					node.send(msg);
-				}).then(function() {
-					msg.element = msg.driver.findElement(By[node.selector](node.target));
-					try {
-						msg.element.getText().then(function(text) {
-							msg.payload = text;
-							if (node.expected && node.expected != "" && node.expected != text) {
-								if (!msg.errors) {
-									msg.errors = new Array();
-								}
-								getAbsoluteXPath(msg.driver, msg.element).then(function(xpath) {
-									msg.errors.push({
-										name : node.name,
-										xpath : xpath,
-										expected : node.expected,
-										value : text
-									});
-									node.send(msg);
-									node.status({
-										fill : "red",
-										shape : "ring",
-										text : "unexpected"
-									});
-								});
-							} else {
-								node.send(msg);
-								node.status({
-									fill : "green",
-									shape : "ring",
-									text : "passed"
-								});
-							}
-						});
-					} catch (ex) {
-						node.send(msg);
-					}
-				}, function(err) {
-					node.send(msg);
-				});
-			} else {
-				try {
-					msg.element.getText().then(function(text) {
-						msg.payload = text;
-						if (node.expected && node.expected != "" && node.expected != text) {
-							if (!msg.errors) {
-								msg.errors = new Array();
-							}
-							getAbsoluteXPath(msg.driver, msg.element).then(function(xpath) {
-								msg.errors.push({
-									name : node.name,
-									xpath : xpath,
-									expected : node.expected,
-									value : text
-								});
-								node.send(msg);
-								node.status({
-									fill : "red",
-									shape : "ring",
-									text : "unexpected"
-								});
-							});
-						} else {
-							node.send(msg);
-							node.status({
-								fill : "green",
-								shape : "ring",
-								text : "passed"
-							});
-						}
-					});
-				} catch (ex) {
-					node.send(msg);
-				}
-			}
-
+			waitUntilElementLocated(node, msg, function(element) {
+				getTextNode(node, msg);
+			});
 		});
 	}
 
