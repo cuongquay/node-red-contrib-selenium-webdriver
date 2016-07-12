@@ -313,7 +313,7 @@ module.exports = function(RED) {
 			});
 		});
 		this.on('close', function() {
-			if (node.serverConn) {
+			if (node.serverObj) {
 				node.serverObj.deregister();
 			}
 		});
