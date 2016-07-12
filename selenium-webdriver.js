@@ -510,6 +510,7 @@ module.exports = function(RED) {
 	function SeleniumGetAttributeNode(n) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
+		this.attribute = n.attribute;
 		this.expected = n.expected;
 		this.selector = n.selector;
 		this.timeout = n.timeout;
