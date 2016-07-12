@@ -1,6 +1,8 @@
 # node-red-contrib-selenium-webdriver
 The Node-RED selenium webdriver nodes which allow you to create selenium test flow by visual IDE tool
 
+[![npm version](https://badge.fury.io/js/node-red-contrib-selenium-webdriver.svg)](https://badge.fury.io/js/node-red-contrib-selenium-webdriver)
+
 **Install Selenium Server**
 
 npm install -g webdriver-manager
