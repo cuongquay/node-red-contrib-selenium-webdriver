@@ -31,7 +31,7 @@ module.exports = function(RED) {
 		if (msg.error) {
 			node.send(msg);
 		} else if (target && target != "") {
-			try {				
+			try {
 				msg.driver.wait(until.elementLocated(By[selector](target)), parseInt(timeout)).catch(function(errorback) {
 					msg.error = {
 						name : node.name,
@@ -168,7 +168,8 @@ module.exports = function(RED) {
 
 	function setValueNode(node, msg, callback) {
 		try {
-			msg.driver.executeScript("arguments[0].setAttribute('value', '" + (msg.value || node.value) + "')", msg.element).then(function() {
+			var value = (node.value && node.value != "") ? node.value : msg.value;
+			msg.driver.executeScript("arguments[0].setAttribute('value', '" + value + "')", msg.element).then(function() {
 				if (!msg.error) {
 					node.status({
 						fill : "green",
@@ -209,7 +210,8 @@ module.exports = function(RED) {
 
 	function sendKeysNode(node, msg) {
 		try {
-			msg.element.sendKeys(msg.keys || node.keys).then(function() {
+			var keys = (node.keys && node.keys != "") ? node.keys : msg.keys;
+			msg.element.sendKeys(keys).then(function() {
 				if (!msg.error) {
 					node.status({
 						fill : "green",

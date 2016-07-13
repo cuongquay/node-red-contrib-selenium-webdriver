@@ -239,8 +239,7 @@
 				value : ""
 			},
 			text : {
-				value : "",
-				required : true
+				value : ""
 			},
 			selector : {
 				value : ""
@@ -338,6 +337,10 @@
 		<input type="text" id="node-input-name">
 	</div>
 	<div class="form-row">
+		<label for="node-input-text"><i class="fa fa-empire"></i> <span>Value</span></label>
+		<input type="text" id="node-input-text">
+	</div>
+	<div class="form-row">
 		<label for="node-input-selector"><i class="fa fa-empire"></i> <span>By</span></label>
 		<select id="node-input-selector" style="width:125px !important">
 			<option value="id">id</option>
@@ -372,6 +375,9 @@
 		category : 'selenium',
 		defaults : {
 			name : {
+				value : ""
+			},
+			text : {
 				value : ""
 			},
 			selector : {
