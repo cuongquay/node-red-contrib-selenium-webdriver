@@ -25,16 +25,19 @@ module.exports = function(RED) {
 	var isUtf8 = require('is-utf8');
 
 	function waitUntilElementLocated(node, msg, callback) {
+		var selector = (node.selector && node.selector != "") ? node.selector : msg.selector;
+		var target = (node.target && node.target != "") ? node.target : msg.target;
+		var timeout = (node.timeout && node.timeout != "") ? node.timeout : msg.timeout;
 		if (msg.error) {
 			node.send(msg);
-		} else if (node.target && node.target != "") {
-			try {
-				msg.driver.wait(until.elementLocated(By[node.selector](node.target)), parseInt(node.timeout)).catch(function(errorback) {
+		} else if (target && target != "") {
+			try {				
+				msg.driver.wait(until.elementLocated(By[selector](target)), parseInt(timeout)).catch(function(errorback) {
 					msg.error = {
 						name : node.name,
-						selector : node.selector,
-						target : node.target,
-						value : "catch timeout after " + node.timeout + " seconds"
+						selector : selector,
+						target : target,
+						value : "catch timeout after " + timeout + " seconds"
 					};
 					node.status({
 						fill : "red",
@@ -45,7 +48,7 @@ module.exports = function(RED) {
 					if (msg.error) {
 						node.send(msg);
 					} else {
-						msg.element = msg.driver.findElement(By[node.selector](node.target));
+						msg.element = msg.driver.findElement(By[selector](target));
 						if ( typeof (callback) !== "undefined") {
 							callback(msg.element);
 						}
@@ -74,11 +77,12 @@ module.exports = function(RED) {
 	}
 
 	function sendErrorMsg(node, msg, text) {
+		var expected = (node.expected && node.expected != "") ? node.expected : msg.expected;
 		getAbsoluteXPath(msg.driver, msg.element).then(function(xpath) {
 			msg.error = {
 				name : node.name,
 				xpath : xpath,
-				expected : node.expected,
+				expected : expected,
 				value : text
 			};
 			node.status({
@@ -94,7 +98,8 @@ module.exports = function(RED) {
 		try {
 			msg.element.getAttribute("value").then(function(text) {
 				msg.payload = text;
-				if (node.expected && node.expected != "" && node.expected != text) {
+				var expected = (node.expected && node.expected != "") ? node.expected : msg.expected;
+				if (expected && expected != "" && expected != text) {
 					sendErrorMsg(node, msg, text);
 				} else if (!msg.error) {
 					node.status({
@@ -106,7 +111,7 @@ module.exports = function(RED) {
 					node.send(msg);
 				}
 			}).catch(function(errorback) {
-				sendErrorMsg(node, msg, "catch timeout after " + node.timeout + " seconds");
+				sendErrorMsg(node, msg, "catch timeout after " + (node.timeout ? node.timeout : msg.timeout) + " seconds");
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -114,10 +119,11 @@ module.exports = function(RED) {
 	};
 
 	function getAttributeNode(node, msg) {
-		try {			
+		try {
 			msg.element.getAttribute(node.attribute).then(function(text) {
-				msg.payload = text;			
-				if (node.expected && node.expected != "" && node.expected != text) {
+				msg.payload = text;
+				var expected = (node.expected && node.expected != "") ? node.expected : msg.expected;
+				if (expected && expected != "" && expected != text) {
 					sendErrorMsg(node, msg, text);
 				} else if (!msg.error) {
 					node.status({
@@ -129,7 +135,7 @@ module.exports = function(RED) {
 					node.send(msg);
 				}
 			}).catch(function(errorback) {
-				sendErrorMsg(node, msg, "catch timeout after " + node.timeout + " seconds");
+				sendErrorMsg(node, msg, "catch timeout after " + (node.timeout ? node.timeout : msg.timeout) + " seconds");
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -140,7 +146,8 @@ module.exports = function(RED) {
 		try {
 			msg.element.getText().then(function(text) {
 				msg.payload = text;
-				if (node.expected && node.expected != "" && node.expected != text) {
+				var expected = (node.expected && node.expected != "") ? node.expected : msg.expected;
+				if (expected && expected != "" && expected != text) {
 					sendErrorMsg(node, msg, text);
 				} else if (!msg.error) {
 					node.status({
@@ -152,7 +159,7 @@ module.exports = function(RED) {
 					node.send(msg);
 				}
 			}).catch(function(errorback) {
-				sendErrorMsg(node, msg, "catch timeout after " + node.timeout + " seconds");
+				sendErrorMsg(node, msg, "catch timeout after " + (node.timeout ? node.timeout : msg.timeout) + " seconds");
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -161,7 +168,7 @@ module.exports = function(RED) {
 
 	function setValueNode(node, msg, callback) {
 		try {
-			msg.driver.executeScript("arguments[0].setAttribute('value', '" + node.value + "')", msg.element).then(function() {
+			msg.driver.executeScript("arguments[0].setAttribute('value', '" + (msg.value || node.value) + "')", msg.element).then(function() {
 				if (!msg.error) {
 					node.status({
 						fill : "green",
@@ -173,7 +180,7 @@ module.exports = function(RED) {
 				}
 
 			}).catch(function(errorback) {
-				sendErrorMsg(node, msg, "catch timeout after " + node.timeout + " seconds");
+				sendErrorMsg(node, msg, "catch timeout after " + (node.timeout ? node.timeout : msg.timeout) + " seconds");
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -193,7 +200,7 @@ module.exports = function(RED) {
 					node.send(msg);
 				}
 			}).catch(function(errorback) {
-				sendErrorMsg(node, msg, "catch timeout after " + node.timeout + " seconds");
+				sendErrorMsg(node, msg, "catch timeout after " + (node.timeout ? node.timeout : msg.timeout) + " seconds");
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -202,7 +209,7 @@ module.exports = function(RED) {
 
 	function sendKeysNode(node, msg) {
 		try {
-			msg.element.sendKeys(node.keys).then(function() {
+			msg.element.sendKeys(msg.keys || node.keys).then(function() {
 				if (!msg.error) {
 					node.status({
 						fill : "green",
@@ -213,7 +220,7 @@ module.exports = function(RED) {
 					node.send(msg);
 				}
 			}).catch(function(errorback) {
-				sendErrorMsg(node, msg, "catch timeout after " + node.timeout + " seconds");
+				sendErrorMsg(node, msg, "catch timeout after " + (node.timeout ? node.timeout : msg.timeout) + " seconds");
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -234,7 +241,7 @@ module.exports = function(RED) {
 					node.send(msg);
 				}
 			}).catch(function(errorback) {
-				sendErrorMsg(node, msg, "catch timeout after " + node.timeout + " seconds");
+				sendErrorMsg(node, msg, "catch timeout after " + (node.timeout ? node.timeout : msg.timeout) + " seconds");
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -255,7 +262,7 @@ module.exports = function(RED) {
 					node.send(msg);
 				}
 			}).catch(function(errorback) {
-				sendErrorMsg(node, msg, "catch timeout after " + node.timeout + " seconds");
+				sendErrorMsg(node, msg, "catch timeout after " + (node.timeout ? node.timeout : msg.timeout) + " seconds");
 			});
 		} catch (ex) {
 			node.send(msg);
