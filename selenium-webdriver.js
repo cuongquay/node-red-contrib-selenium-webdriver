@@ -28,6 +28,7 @@ module.exports = function(RED) {
 		var selector = (node.selector && node.selector != "") ? node.selector : msg.selector;
 		var target = (node.target && node.target != "") ? node.target : msg.target;
 		var timeout = (node.timeout && node.timeout != "") ? node.timeout : msg.timeout;
+		var waitfor = (node.waitfor && node.waitfor != "") ? node.waitfor : (msg.waitfor || 0);
 		if (msg.error) {
 			node.send(msg);
 		} else if (target && target != "") {
@@ -50,7 +51,9 @@ module.exports = function(RED) {
 					} else {
 						msg.element = msg.driver.findElement(By[selector](target));
 						if ( typeof (callback) !== "undefined") {
-							callback(msg.element);
+							setTimeout(function() {
+								callback(msg.element);	
+							}, waitfor);
 						}
 					}
 				}, function(err) {
@@ -71,7 +74,9 @@ module.exports = function(RED) {
 			}
 		} else {
 			if ( typeof (callback) !== "undefined") {
-				callback(msg.element);
+				setTimeout(function() {
+					callback(msg.element);	
+				}, waitfor);
 			}
 		}
 	}
@@ -484,6 +489,7 @@ module.exports = function(RED) {
 		this.target = n.target;
 		var node = this;
 		this.on("input", function(msg) {
+			console.log("input", msg);
 			waitUntilElementLocated(node, msg, function(element) {
 				clickOnNode(node, msg);
 			});
@@ -653,4 +659,19 @@ module.exports = function(RED) {
 
 
 	RED.nodes.registerType("nav-refresh", SeleniumNavRefreshNode);
+	
+	RED.httpAdmin.post("/inject/:id", RED.auth.needsPermission("inject.write"), function(req,res) {
+        var node = RED.nodes.getNode(req.params.id);
+        if (node != null) {
+            try {
+                node.receive();
+                res.sendStatus(200);
+            } catch(err) {
+                res.sendStatus(500);
+                node.error(RED._("inject.failed",{error:err.toString()}));
+            }
+        } else {
+            res.sendStatus(404);
+        }
+    });
 };
