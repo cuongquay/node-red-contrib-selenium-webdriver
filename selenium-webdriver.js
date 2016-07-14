@@ -514,6 +514,11 @@ module.exports = function(RED) {
 				if (node.clickon) {
 					if ( typeof (msg.payload) !== "undefined") {
 						node.___msgs = msg;
+						node.status({
+							fill : "blue",
+							shape : "dot",
+							text : "click on"
+						});
 					} else {
 						msg = node.___msgs;
 						if (typeof (msg) !== "undefined") {
