@@ -18,6 +18,7 @@ module.exports = function(RED) {
 	"use strict";
 	var q = require('q');
 	var util = require("util");
+	var fs = require("fs-extra");
 	var isReachable = require('is-reachable');
 	var webdriver = require("selenium-webdriver"),
 	    By = webdriver.By,
@@ -72,7 +73,7 @@ module.exports = function(RED) {
 							});
 							node.send(msg);
 						});
-					} else {						
+					} else {
 						if ( typeof (callback) !== "undefined") {
 							node.status({});
 							callback(msg.element);
@@ -92,7 +93,7 @@ module.exports = function(RED) {
 				node.status({
 					fill : "blue",
 					shape : "dot",
-					text : "delay " + (waitfor/1000).toFixed(1) + " s"
+					text : "delay " + (waitfor / 1000).toFixed(1) + " s"
 				});
 				setTimeout(function() {
 					node.status({});
@@ -561,7 +562,59 @@ module.exports = function(RED) {
 
 
 	RED.nodes.registerType("set-value", SeleniumSetValueNode);
+	
+	function SeleniumSaveValueNode(n) {
+		RED.nodes.createNode(this, n);
+		this.name = n.name;
+		this.filename = n.filename;
+		this.waitfor = n.waitfor;
+		var node = this;
+		this.on("input", function(msg) {
+			var filename = msg.filename || node.filename;
+			var data = msg.payload;
+			if (( typeof data === "object") && (!Buffer.isBuffer(data))) {
+				data = JSON.stringify(data);
+			}
+			if ( typeof data === "boolean") {
+				data = data.toString();
+			}
+			if ( typeof data === "number") {
+				data = data.toString();
+			}				
+			fs.writeFile(filename, data, "utf8", function(err) {				
+				if (err) {
+					if ((err.code === "ENOENT") && node.createDir) {
+						fs.ensureFile(filename, function(err) {
+							if (err) {
+								node.error(RED._("file.errors.createfail", {
+									error : err.toString()
+								}), msg);
+							} else {
+								fs.writeFile(filename, data, "utf8", function(err) {
+									if (err) {
+										node.error(RED._("file.errors.writefail", {
+											error : err.toString()
+										}), msg);
+									}
+								});
+							}
+							node.send(msg);
+						});
+					} else {
+						node.error(RED._("file.errors.writefail", {
+							error : err.toString()
+						}), msg);
+						node.send(msg);
+					}
+				} else {
+					node.send(msg);
+				}
+			});
+		});
+	}
 
+	RED.nodes.registerType("save-value", SeleniumSaveValueNode);
+	
 	function SeleniumGetValueNode(n) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
@@ -720,7 +773,7 @@ module.exports = function(RED) {
 	}
 
 
-	RED.nodes.registerType("nav-refresh", SeleniumNavRefreshNode);
+	RED.nodes.registerType("nav-refresh", SeleniumNavRefreshNode);	
 
 	RED.httpAdmin.post("/onclick/:id", RED.auth.needsPermission("inject.write"), function(req, res) {
 		var node = RED.nodes.getNode(req.params.id);
