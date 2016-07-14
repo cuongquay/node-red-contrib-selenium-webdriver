@@ -23,12 +23,14 @@ module.exports = function(RED) {
 	    By = webdriver.By,
 	    until = webdriver.until;
 	var isUtf8 = require('is-utf8');
+	var ___msgs = {};
 
 	function waitUntilElementLocated(node, msg, callback) {
 		var selector = (node.selector && node.selector != "") ? node.selector : msg.selector;
 		var target = (node.target && node.target != "") ? node.target : msg.target;
 		var timeout = (node.timeout && node.timeout != "") ? node.timeout : msg.timeout;
-		var waitfor = (node.waitfor && node.waitfor != "") ? node.waitfor : (msg.waitfor || 0);
+		var waitfor = msg.waitfor || node.waitfor;
+		node.status({});
 		if (msg.error) {
 			node.send(msg);
 		} else if (target && target != "") {
@@ -51,8 +53,14 @@ module.exports = function(RED) {
 					} else {
 						msg.element = msg.driver.findElement(By[selector](target));
 						if ( typeof (callback) !== "undefined") {
+							node.status({
+								fill : "blue",
+								shape : "dot",
+								text : " "
+							});
 							setTimeout(function() {
-								callback(msg.element);	
+								callback(msg.element);
+								node.status({});
 							}, waitfor);
 						}
 					}
@@ -74,8 +82,14 @@ module.exports = function(RED) {
 			}
 		} else {
 			if ( typeof (callback) !== "undefined") {
+				node.status({
+					fill : "blue",
+					shape : "dot",
+					text : " "
+				});
 				setTimeout(function() {
-					callback(msg.element);	
+					callback(msg.element);
+					node.status({});
 				}, waitfor);
 			}
 		}
@@ -436,10 +450,13 @@ module.exports = function(RED) {
 	function SeleniumCloseBrowserNode(n) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
+		this.waitfor = n.waitfor || 0;
 		var node = this;
 		this.on("input", function(msg) {
-			msg.driver.quit();
-			node.send(msg);
+			setTimeout(function() {
+				msg.driver.quit();
+				node.send(msg);
+			}, node.waitfor);
 		});
 	}
 
@@ -452,6 +469,7 @@ module.exports = function(RED) {
 		this.selector = n.selector;
 		this.timeout = n.timeout;
 		this.target = n.target;
+		this.waitfor = n.waitfor;
 		var node = this;
 		this.on("input", function(msg) {
 			waitUntilElementLocated(node, msg, function(element) {
@@ -470,6 +488,7 @@ module.exports = function(RED) {
 		this.selector = n.selector;
 		this.timeout = n.timeout;
 		this.target = n.target;
+		this.waitfor = n.waitfor;
 		var node = this;
 		this.on("input", function(msg) {
 			waitUntilElementLocated(node, msg, function(element) {
@@ -487,11 +506,23 @@ module.exports = function(RED) {
 		this.selector = n.selector;
 		this.timeout = n.timeout;
 		this.target = n.target;
+		this.waitfor = n.waitfor;
+		this.clickon = n.clickon;
 		var node = this;
-		this.on("input", function(msg) {
-			console.log("input", msg);
-			waitUntilElementLocated(node, msg, function(element) {
-				clickOnNode(node, msg);
+		this.on("input", function(msg) {			
+			waitUntilElementLocated(node, msg, function(element) {				
+				if (node.clickon) {
+					if ( typeof (msg.payload) !== "undefined") {
+						node.___msgs = msg;
+					} else {
+						msg = node.___msgs;
+						if (typeof (msg) !== "undefined") {
+							clickOnNode(node, msg);	
+						}
+					}
+				} else {
+					clickOnNode(node, msg);
+				}
 			});
 		});
 	}
@@ -506,6 +537,7 @@ module.exports = function(RED) {
 		this.selector = n.selector;
 		this.timeout = n.timeout;
 		this.target = n.target;
+		this.waitfor = n.waitfor;
 		var node = this;
 		this.on("input", function(msg) {
 			waitUntilElementLocated(node, msg, function(element) {
@@ -513,7 +545,6 @@ module.exports = function(RED) {
 			});
 		});
 	}
-
 
 	RED.nodes.registerType("set-value", SeleniumSetValueNode);
 
@@ -524,6 +555,7 @@ module.exports = function(RED) {
 		this.selector = n.selector;
 		this.timeout = n.timeout;
 		this.target = n.target;
+		this.waitfor = n.waitfor;
 		var node = this;
 
 		this.on("input", function(msg) {
@@ -544,6 +576,7 @@ module.exports = function(RED) {
 		this.selector = n.selector;
 		this.timeout = n.timeout;
 		this.target = n.target;
+		this.waitfor = n.waitfor;
 		var node = this;
 
 		this.on("input", function(msg) {
@@ -563,6 +596,7 @@ module.exports = function(RED) {
 		this.selector = n.selector;
 		this.timeout = n.timeout;
 		this.target = n.target;
+		this.waitfor = n.waitfor;
 		var node = this;
 		this.on("input", function(msg) {
 			waitUntilElementLocated(node, msg, function(element) {
@@ -578,6 +612,7 @@ module.exports = function(RED) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
 		this.func = n.func;
+		this.waitfor = n.waitfor;
 		var node = this;
 		this.on("input", function(msg) {
 			waitUntilElementLocated(node, msg, function(element) {
@@ -592,6 +627,7 @@ module.exports = function(RED) {
 	function SeleniumTakeScreenshotNode(n) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
+		this.waitfor = n.waitfor;
 		var node = this;
 		this.on("input", function(msg) {
 			waitUntilElementLocated(node, msg, function(element) {
@@ -607,11 +643,14 @@ module.exports = function(RED) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
 		this.url = n.url;
+		this.waitfor = n.waitfor;
 		var node = this;
 		this.on("input", function(msg) {
-			msg.driver.navigate().to(node.url).then(function() {
-				node.send(msg);
-			});
+			setTimeout(function() {
+				msg.driver.navigate().to(node.url).then(function() {
+					node.send(msg);
+				});
+			}, node.waitfor);
 		});
 	}
 
@@ -621,11 +660,14 @@ module.exports = function(RED) {
 	function SeleniumNavBackNode(n) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
+		this.waitfor = n.waitfor;
 		var node = this;
 		this.on("input", function(msg) {
-			msg.driver.navigate().back().then(function() {
-				node.send(msg);
-			});
+			setTimeout(function() {
+				msg.driver.navigate().back().then(function() {
+					node.send(msg);
+				});
+			}, node.waitfor);
 		});
 	}
 
@@ -635,11 +677,14 @@ module.exports = function(RED) {
 	function SeleniumNavForwardNode(n) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
+		this.waitfor = n.waitfor;
 		var node = this;
 		this.on("input", function(msg) {
-			msg.driver.navigate().forward().then(function() {
-				node.send(msg);
-			});
+			setTimeout(function() {
+				msg.driver.navigate().forward().then(function() {
+					node.send(msg);
+				});
+			}, node.waitfor);
 		});
 	}
 
@@ -649,29 +694,34 @@ module.exports = function(RED) {
 	function SeleniumNavRefreshNode(n) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
+		this.waitfor = n.waitfor;
 		var node = this;
 		this.on("input", function(msg) {
-			msg.driver.navigate().refresh().then(function() {
-				node.send(msg);
-			});
+			setTimeout(function() {
+				msg.driver.navigate().refresh().then(function() {
+					node.send(msg);
+				});
+			}, node.waitfor);
 		});
 	}
 
 
 	RED.nodes.registerType("nav-refresh", SeleniumNavRefreshNode);
-	
-	RED.httpAdmin.post("/inject/:id", RED.auth.needsPermission("inject.write"), function(req,res) {
-        var node = RED.nodes.getNode(req.params.id);
-        if (node != null) {
-            try {
-                node.receive();
-                res.sendStatus(200);
-            } catch(err) {
-                res.sendStatus(500);
-                node.error(RED._("inject.failed",{error:err.toString()}));
-            }
-        } else {
-            res.sendStatus(404);
-        }
-    });
+
+	RED.httpAdmin.post("/onclick/:id", RED.auth.needsPermission("inject.write"), function(req, res) {
+		var node = RED.nodes.getNode(req.params.id);
+		if (node != null) {
+			try {
+				node.receive({ waitfor: 1 });
+				res.sendStatus(200);
+			} catch(err) {
+				res.sendStatus(500);
+				node.error(RED._("inject.failed", {
+					error : err.toString()
+				}));
+			}
+		} else {
+			res.sendStatus(404);
+		}
+	});
 };
