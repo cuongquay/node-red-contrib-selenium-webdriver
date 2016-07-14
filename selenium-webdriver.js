@@ -35,43 +35,50 @@ module.exports = function(RED) {
 			node.send(msg);
 		} else if (target && target != "") {
 			try {
-				msg.driver.wait(until.elementLocated(By[selector](target)), parseInt(timeout)).catch(function(errorback) {
-					msg.error = {
-						name : node.name,
-						selector : selector,
-						target : target,
-						value : "catch timeout after " + timeout + " seconds"
-					};
-					node.status({
-						fill : "red",
-						shape : "ring",
-						text : "unexpected"
-					});
-				}).then(function() {
-					if (msg.error) {
-						node.send(msg);
-					} else {
-						msg.element = msg.driver.findElement(By[selector](target));
-						if ( typeof (callback) !== "undefined") {
+				node.status({
+					fill : "blue",
+					shape : "dot",
+					text : "locating"
+				});
+				setTimeout(function() {
+					if (msg.driver) {
+						msg.driver.wait(until.elementLocated(By[selector](target)), parseInt(timeout)).catch(function(errorback) {
+							msg.error = {
+								name : node.name,
+								selector : selector,
+								target : target,
+								value : "catch timeout after " + timeout + " seconds"
+							};
 							node.status({
-								fill : "blue",
-								shape : "dot",
-								text : " "
+								fill : "red",
+								shape : "ring",
+								text : "unexpected"
 							});
-							setTimeout(function() {
-								callback(msg.element);
-								node.status({});
-							}, waitfor);
+						}).then(function() {
+							if (msg.error) {
+								node.send(msg);
+							} else {
+								msg.element = msg.driver.findElement(By[selector](target));
+								if ( typeof (callback) !== "undefined") {
+									node.status({});
+									callback(msg.element);
+								}
+							}
+						}, function(err) {
+							node.status({
+								fill : "red",
+								shape : "ring",
+								text : "error"
+							});
+							node.send(msg);
+						});
+					} else {						
+						if ( typeof (callback) !== "undefined") {
+							node.status({});
+							callback(msg.element);
 						}
 					}
-				}, function(err) {
-					node.status({
-						fill : "red",
-						shape : "ring",
-						text : "error"
-					});
-					node.send(msg);
-				});
+				}, waitfor);
 			} catch (ex) {
 				node.status({
 					fill : "red",
@@ -85,11 +92,11 @@ module.exports = function(RED) {
 				node.status({
 					fill : "blue",
 					shape : "dot",
-					text : " "
+					text : "delay " + (waitfor/1000).toFixed(1) + " s"
 				});
 				setTimeout(function() {
-					callback(msg.element);
 					node.status({});
+					callback(msg.element);
 				}, waitfor);
 			}
 		}
@@ -509,8 +516,8 @@ module.exports = function(RED) {
 		this.waitfor = n.waitfor;
 		this.clickon = n.clickon;
 		var node = this;
-		this.on("input", function(msg) {			
-			waitUntilElementLocated(node, msg, function(element) {				
+		this.on("input", function(msg) {
+			waitUntilElementLocated(node, msg, function(element) {
 				if (node.clickon) {
 					if ( typeof (msg.payload) !== "undefined") {
 						node.___msgs = msg;
@@ -521,8 +528,9 @@ module.exports = function(RED) {
 						});
 					} else {
 						msg = node.___msgs;
-						if (typeof (msg) !== "undefined") {
-							clickOnNode(node, msg);	
+						if ( typeof (msg) !== "undefined") {
+							clickOnNode(node, msg);
+							delete node.___msgs;
 						}
 					}
 				} else {
@@ -550,6 +558,7 @@ module.exports = function(RED) {
 			});
 		});
 	}
+
 
 	RED.nodes.registerType("set-value", SeleniumSetValueNode);
 
@@ -717,7 +726,9 @@ module.exports = function(RED) {
 		var node = RED.nodes.getNode(req.params.id);
 		if (node != null) {
 			try {
-				node.receive({ waitfor: 1 });
+				node.receive({
+					waitfor : 1
+				});
 				res.sendStatus(200);
 			} catch(err) {
 				res.sendStatus(500);
