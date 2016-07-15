@@ -237,8 +237,8 @@ module.exports = function(RED) {
 
 	function sendKeysNode(node, msg) {
 		try {
-			var keys = (node.keys && node.keys != "") ? node.keys : msg.keys;
-			msg.element.sendKeys(keys).then(function() {
+			var value = (node.value && node.value != "") ? node.value : msg.value;
+			msg.element.sendKeys(value).then(function() {
 				if (!msg.error) {
 					node.status({
 						fill : "green",
@@ -492,7 +492,7 @@ module.exports = function(RED) {
 	function SeleniumSendKeysNode(n) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
-		this.keys = n.text;
+		this.value = n.text;
 		this.selector = n.selector;
 		this.timeout = n.timeout;
 		this.target = n.target;
