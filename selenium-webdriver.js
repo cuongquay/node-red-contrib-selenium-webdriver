@@ -302,9 +302,9 @@ module.exports = function(RED) {
 		try {
 			msg.element.getSize().then(function(size) {
 				msg.element.getLocation().then(function(location) {
-					msg.driver.takeScreenshot().then(function(base64PNG) {
-						if (!node.filename || node.filename == "") {
-							msg.image = base64Data;
+					msg.driver.takeScreenshot().then(function(base64PNG) {						
+						if (node.filename.length == 0) {
+							msg.payload = base64PNG;
 							node.status({
 								fill : "green",
 								shape : "ring",
