@@ -180,7 +180,7 @@ module.exports = function(RED) {
 					if (msg.filename && node.savetofile) {
 						saveToFile(node, msg);
 					} else {
-						node.send(msg);	
+						node.send(msg);
 					}
 				}
 			}).catch(function(errorback) {
@@ -208,7 +208,7 @@ module.exports = function(RED) {
 					if (msg.filename && node.savetofile) {
 						saveToFile(node, msg);
 					} else {
-						node.send(msg);	
+						node.send(msg);
 					}
 				}
 			}).catch(function(errorback) {
@@ -236,7 +236,7 @@ module.exports = function(RED) {
 					if (msg.filename && node.savetofile) {
 						saveToFile(node, msg);
 					} else {
-						node.send(msg);	
+						node.send(msg);
 					}
 				}
 			}).catch(function(errorback) {
@@ -292,7 +292,25 @@ module.exports = function(RED) {
 	function sendKeysNode(node, msg) {
 		try {
 			var value = (node.value && node.value != "") ? node.value : msg.value;
-			msg.element.clear().then(function() {
+			if (node.clearval) {
+				msg.element.clear().then(function() {
+					msg.element.sendKeys(value).then(function() {
+						if (!msg.error) {
+							node.status({
+								fill : "green",
+								shape : "ring",
+								text : "done"
+							});
+							delete msg.error;
+							node.send(msg);
+						}
+					}).catch(function(errorback) {
+						sendErrorMsg(node, msg, errorback.message);
+					});
+				}).catch(function(errorback) {
+					sendErrorMsg(node, msg, errorback.message);
+				});
+			} else {
 				msg.element.sendKeys(value).then(function() {
 					if (!msg.error) {
 						node.status({
@@ -306,9 +324,7 @@ module.exports = function(RED) {
 				}).catch(function(errorback) {
 					sendErrorMsg(node, msg, errorback.message);
 				});
-			}).catch(function(errorback) {
-				sendErrorMsg(node, msg, errorback.message);
-			});
+			}
 		} catch (ex) {
 			node.send(msg);
 		}
@@ -599,6 +615,7 @@ module.exports = function(RED) {
 		this.timeout = n.timeout;
 		this.target = n.target;
 		this.waitfor = n.waitfor;
+		this.clearval = n.clearval;
 		var node = this;
 		this.on("input", function(msg) {
 			waitUntilElementLocated(node, msg, function(element) {

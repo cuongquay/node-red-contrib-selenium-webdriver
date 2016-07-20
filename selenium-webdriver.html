@@ -256,6 +256,10 @@
 		<label for="node-input-waitfor"><i class="fa fa-empire"></i> <span>Wait For</span></label>
 		<input type="text" id="node-input-waitfor" value="00">
 	</div>
+	<div class="form-row">		
+		<input type="checkbox" id="node-input-clearval" value="false" style="display: inline-block; width: auto; vertical-align: top;">
+		<label for="node-input-clearval" style="width: 70%"> <span>Clear the element value before send keys.</span></label>
+	</div>
 </script>
 
 <script type="text/x-red" data-help-name="send-keys">
@@ -296,6 +300,9 @@
 			waitfor : {
 				value : 500,
 				validate : RED.validators.number()
+			},
+			clearval : {
+				value : false
 			}
 		},
 		color : "#d8bfd8",
