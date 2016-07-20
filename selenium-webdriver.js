@@ -754,11 +754,13 @@ module.exports = function(RED) {
 		this.waitfor = n.waitfor;
 		var node = this;
 		this.on("input", function(msg) {
-			setTimeout(function() {
-				msg.driver.navigate().to(node.url).then(function() {
-					node.send(msg);
-				});
-			}, node.waitfor);
+			if (msg.driver) {
+				setTimeout(function() {
+					msg.driver.navigate().to(node.url).then(function() {
+						node.send(msg);
+					});
+				}, node.waitfor);
+			}
 		});
 	}
 
@@ -771,11 +773,13 @@ module.exports = function(RED) {
 		this.waitfor = n.waitfor;
 		var node = this;
 		this.on("input", function(msg) {
-			setTimeout(function() {
-				msg.driver.navigate().back().then(function() {
-					node.send(msg);
-				});
-			}, node.waitfor);
+			if (msg.driver) {
+				setTimeout(function() {
+					msg.driver.navigate().back().then(function() {
+						node.send(msg);
+					});
+				}, node.waitfor);
+			}
 		});
 	}
 
@@ -788,11 +792,13 @@ module.exports = function(RED) {
 		this.waitfor = n.waitfor;
 		var node = this;
 		this.on("input", function(msg) {
-			setTimeout(function() {
-				msg.driver.navigate().forward().then(function() {
-					node.send(msg);
-				});
-			}, node.waitfor);
+			if (msg.driver) {
+				setTimeout(function() {
+					msg.driver.navigate().forward().then(function() {
+						node.send(msg);
+					});
+				}, node.waitfor);
+			}
 		});
 	}
 
@@ -805,11 +811,13 @@ module.exports = function(RED) {
 		this.waitfor = n.waitfor;
 		var node = this;
 		this.on("input", function(msg) {
-			setTimeout(function() {
-				msg.driver.navigate().refresh().then(function() {
-					node.send(msg);
-				});
-			}, node.waitfor);
+			if (msg.driver) {
+				setTimeout(function() {
+					msg.driver.navigate().refresh().then(function() {
+						node.send(msg);
+					});
+				}, node.waitfor);
+			}
 		});
 	}
 
