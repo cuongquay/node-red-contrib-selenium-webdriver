@@ -598,6 +598,10 @@
 	<div class="form-row">
 		<label for="node-input-waitfor"><i class="fa fa-empire"></i> <span>Wait For</span></label>
 		<input type="text" id="node-input-waitfor" value="00">
+	</div>	
+	<div class="form-row">		
+		<input type="checkbox" id="node-input-savetofile" value="false" style="display: inline-block; width: auto; vertical-align: top;">
+		<label for="node-input-savetofile" style="width: 70%"> <span>Save the value to a specific filename.</span></label>
 	</div>
 </script>
 
@@ -641,6 +645,9 @@
 			waitfor : {
 				value : 500,
 				validate : RED.validators.number()
+			},
+			savetofile : {
+				value : false
 			}
 		},
 		color : "#d8bfd8",
@@ -694,6 +701,10 @@
 		<label for="node-input-waitfor"><i class="fa fa-empire"></i> <span>Wait For</span></label>
 		<input type="text" id="node-input-waitfor" value="00">
 	</div>
+	<div class="form-row">		
+		<input type="checkbox" id="node-input-savetofile" value="false" style="display: inline-block; width: auto; vertical-align: top;">
+		<label for="node-input-savetofile" style="width: 70%"> <span>Save the value to a specific filename.</span></label>
+	</div>
 </script>
 
 <script type="text/x-red" data-help-name="get-attribute">
@@ -740,6 +751,9 @@
 			waitfor : {
 				value : 500,
 				validate : RED.validators.number()
+			},
+			savetofile : {
+				value : false
 			}
 		},
 		color : "#d8bfd8",
@@ -789,6 +803,10 @@
 		<label for="node-input-waitfor"><i class="fa fa-empire"></i> <span>Wait For</span></label>
 		<input type="text" id="node-input-waitfor" value="00">
 	</div>
+	<div class="form-row">		
+		<input type="checkbox" id="node-input-savetofile" value="false" style="display: inline-block; width: auto; vertical-align: top;">
+		<label for="node-input-savetofile" style="width: 70%"> <span>Save the value to a specific filename.</span></label>
+	</div>
 </script>
 
 <script type="text/x-red" data-help-name="get-text">
@@ -831,6 +849,9 @@
 			waitfor : {
 				value : 500,
 				validate : RED.validators.number()
+			},
+			savetofile : {
+				value : false
 			}
 		},
 		color : "#d8bfd8",

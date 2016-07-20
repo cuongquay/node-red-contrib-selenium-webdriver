@@ -177,7 +177,7 @@ module.exports = function(RED) {
 						text : "passed"
 					});
 					delete msg.error;
-					if (msg.filename) {
+					if (msg.filename && node.savetofile) {
 						saveToFile(node, msg);
 					} else {
 						node.send(msg);	
@@ -205,7 +205,7 @@ module.exports = function(RED) {
 						text : "passed"
 					});
 					delete msg.error;
-					if (msg.filename) {
+					if (msg.filename && node.savetofile) {
 						saveToFile(node, msg);
 					} else {
 						node.send(msg);	
@@ -233,7 +233,7 @@ module.exports = function(RED) {
 						text : "passed"
 					});
 					delete msg.error;
-					if (msg.filename) {
+					if (msg.filename && node.savetofile) {
 						saveToFile(node, msg);
 					} else {
 						node.send(msg);	
@@ -687,6 +687,7 @@ module.exports = function(RED) {
 		this.timeout = n.timeout;
 		this.target = n.target;
 		this.waitfor = n.waitfor;
+		this.savetofile = n.savetofile;
 		var node = this;
 
 		this.on("input", function(msg) {
@@ -708,6 +709,7 @@ module.exports = function(RED) {
 		this.timeout = n.timeout;
 		this.target = n.target;
 		this.waitfor = n.waitfor;
+		this.savetofile = n.savetofile;
 		var node = this;
 
 		this.on("input", function(msg) {
@@ -728,6 +730,7 @@ module.exports = function(RED) {
 		this.timeout = n.timeout;
 		this.target = n.target;
 		this.waitfor = n.waitfor;
+		this.savetofile = n.savetofile;
 		var node = this;
 		this.on("input", function(msg) {
 			waitUntilElementLocated(node, msg, function(element) {
