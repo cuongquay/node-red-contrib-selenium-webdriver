@@ -97,7 +97,7 @@ module.exports = function(RED) {
 							node.status({
 								fill : "red",
 								shape : "ring",
-								text : "unexpected"
+								text : "error"
 							});
 						}).then(function() {
 							if (msg.error) {
@@ -147,7 +147,7 @@ module.exports = function(RED) {
 		}
 	}
 
-	function sendErrorMsg(node, msg, text) {
+	function sendErrorMsg(node, msg, text, type) {
 		msg.error = {
 			name : node.name,
 			selector : node.selector,
@@ -158,7 +158,7 @@ module.exports = function(RED) {
 		node.status({
 			fill : "red",
 			shape : "ring",
-			text : "unexpected"
+			text : type || "unknown"
 		});
 		node.send(msg);
 	};
@@ -169,7 +169,7 @@ module.exports = function(RED) {
 				msg.payload = text;
 				var expected = (node.expected && node.expected != "") ? node.expected : msg.expected;
 				if (expected && expected != "" && expected != text) {
-					sendErrorMsg(node, msg, text);
+					sendErrorMsg(node, msg, text, "unexpected");
 				} else if (!msg.error) {
 					node.status({
 						fill : "green",
@@ -184,7 +184,7 @@ module.exports = function(RED) {
 					}
 				}
 			}).catch(function(errorback) {
-				sendErrorMsg(node, msg, errorback.message);
+				sendErrorMsg(node, msg, errorback.message, "error");
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -197,7 +197,7 @@ module.exports = function(RED) {
 				msg.payload = text;
 				var expected = (node.expected && node.expected != "") ? node.expected : msg.expected;
 				if (expected && expected != "" && expected != text) {
-					sendErrorMsg(node, msg, text);
+					sendErrorMsg(node, msg, text, "unexpected");
 				} else if (!msg.error) {
 					node.status({
 						fill : "green",
@@ -212,7 +212,7 @@ module.exports = function(RED) {
 					}
 				}
 			}).catch(function(errorback) {
-				sendErrorMsg(node, msg, errorback.message);
+				sendErrorMsg(node, msg, errorback.message, "error");
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -225,7 +225,7 @@ module.exports = function(RED) {
 				msg.payload = text;
 				var expected = (node.expected && node.expected != "") ? node.expected : msg.expected;
 				if (expected && expected != "" && expected != text) {
-					sendErrorMsg(node, msg, text);
+					sendErrorMsg(node, msg, text, "unexpected");
 				} else if (!msg.error) {
 					node.status({
 						fill : "green",
@@ -240,7 +240,7 @@ module.exports = function(RED) {
 					}
 				}
 			}).catch(function(errorback) {
-				sendErrorMsg(node, msg, errorback.message);
+				sendErrorMsg(node, msg, errorback.message, "error");
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -262,7 +262,7 @@ module.exports = function(RED) {
 				}
 
 			}).catch(function(errorback) {
-				sendErrorMsg(node, msg, errorback.message);
+				sendErrorMsg(node, msg, errorback.message, "error");
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -282,7 +282,7 @@ module.exports = function(RED) {
 					node.send(msg);
 				}
 			}).catch(function(errorback) {
-				sendErrorMsg(node, msg, errorback.message);
+				sendErrorMsg(node, msg, errorback.message, "error");
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -305,10 +305,10 @@ module.exports = function(RED) {
 							node.send(msg);
 						}
 					}).catch(function(errorback) {
-						sendErrorMsg(node, msg, errorback.message);
+						sendErrorMsg(node, msg, errorback.message, "error");
 					});
 				}).catch(function(errorback) {
-					sendErrorMsg(node, msg, errorback.message);
+					sendErrorMsg(node, msg, errorback.message, "error");
 				});
 			} else {
 				msg.element.sendKeys(value).then(function() {
@@ -322,7 +322,7 @@ module.exports = function(RED) {
 						node.send(msg);
 					}
 				}).catch(function(errorback) {
-					sendErrorMsg(node, msg, errorback.message);
+					sendErrorMsg(node, msg, errorback.message, "error");
 				});
 			}
 		} catch (ex) {
@@ -344,7 +344,7 @@ module.exports = function(RED) {
 					node.send(msg);
 				}
 			}).catch(function(errorback) {
-				sendErrorMsg(node, msg, errorback.message);
+				sendErrorMsg(node, msg, errorback.message, "error");
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -387,7 +387,7 @@ module.exports = function(RED) {
 							var base64Data = base64PNG.replace(/^data:image\/png;base64,/, "");
 							fs.writeFile(node.filename, base64Data, 'base64', function(err) {
 								if (err) {
-									sendErrorMsg(node, msg, err.message);
+									sendErrorMsg(node, msg, err.message, "error");
 								} else {
 									cropInFile(size, location, node.filename);
 								}
@@ -403,13 +403,13 @@ module.exports = function(RED) {
 							});
 						}
 					}).catch(function(errorback) {
-						sendErrorMsg(node, msg, errorback.message);
+						sendErrorMsg(node, msg, errorback.message, "error");
 					});
 				}).catch(function(errorback) {
-					sendErrorMsg(node, msg, errorback.message);
+					sendErrorMsg(node, msg, errorback.message, "error");
 				});
 			}).catch(function(errorback) {
-				sendErrorMsg(node, msg, errorback.message);
+				sendErrorMsg(node, msg, errorback.message, "error");
 			});
 		} catch (ex) {
 			node.send(msg);
