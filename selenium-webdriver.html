@@ -942,6 +942,31 @@
 		<input type="text" id="node-input-name">
 	</div>
 	<div class="form-row">
+		<label for="node-input-filename"><i class="fa fa-empire"></i> <span>File</span></label>
+		<input type="text" id="node-input-filename">
+	</div>
+	<div class="form-row">
+		<label for="node-input-selector"><i class="fa fa-empire"></i> <span>By</span></label>
+		<select id="node-input-selector" style="width:125px !important">
+			<option value="id">id</option>
+			<option value="name">name</option>
+			<option value="link">link</option>
+			<option value="xpath">xpath</option>
+			<option value="tagName">tagName</option>
+			<option value="className">className</option>
+			<option value="linkText">linkText</option>
+			<option value="cssSelector">cssSelector</option>
+		</select>
+	</div>
+	<div class="form-row">
+		<label for="node-input-target"><i class="fa fa-empire"></i> <span>Target</span></label>
+		<input type="text" id="node-input-target">
+	</div>
+	<div class="form-row">
+		<label for="node-input-timeout"><i class="fa fa-empire"></i> <span>Timeout</span></label>
+		<input type="text" id="node-input-timeout" value="1000">
+	</div>
+	<div class="form-row">
 		<label for="node-input-waitfor"><i class="fa fa-empire"></i> <span>Wait For</span></label>
 		<input type="text" id="node-input-waitfor" value="00">
 	</div>
@@ -958,6 +983,19 @@
 		defaults : {
 			name : {
 				value : ""
+			},
+			filename : {
+				value : "./filename.png"
+			},
+			selector : {
+				value : ""
+			},
+			target : {
+				value : ""
+			},
+			timeout : {
+				value : 1000,
+				validate : RED.validators.number()
 			},
 			waitfor : {
 				value : 500,

@@ -19,6 +19,7 @@ module.exports = function(RED) {
 	var q = require('q');
 	var util = require("util");
 	var fs = require("fs-extra");
+	var easyimg = require("easyimage");
 	var isReachable = require('is-reachable');
 	var webdriver = require("selenium-webdriver"),
 	    By = webdriver.By,
@@ -27,14 +28,14 @@ module.exports = function(RED) {
 	var ___msgs = {};
 
 	function waitUntilElementLocated(node, msg, callback) {
-		var selector = (node.selector && node.selector != "") ? node.selector : msg.selector;
-		var target = (node.target && node.target != "") ? node.target : msg.target;
-		var timeout = (node.timeout && node.timeout != "") ? node.timeout : msg.timeout;
-		var waitfor = msg.waitfor || node.waitfor;
+		node.selector = (node.selector && node.selector != "") ? node.selector : msg.selector;
+		node.target = (node.target && node.target != "") ? node.target : msg.target;
+		node.timeout = (node.timeout && node.timeout != "") ? node.timeout : msg.timeout;
+		node.waitfor = msg.waitfor || node.waitfor;
 		node.status({});
 		if (msg.error) {
 			node.send(msg);
-		} else if (target && target != "") {
+		} else if (node.target && node.target != "") {
 			try {
 				node.status({
 					fill : "blue",
@@ -43,12 +44,12 @@ module.exports = function(RED) {
 				});
 				setTimeout(function() {
 					if (msg.driver) {
-						msg.driver.wait(until.elementLocated(By[selector](target)), parseInt(timeout)).catch(function(errorback) {
+						msg.driver.wait(until.elementLocated(By[node.selector](node.target)), parseInt(node.timeout)).catch(function(errorback) {
 							msg.error = {
 								name : node.name,
-								selector : selector,
-								target : target,
-								value : "catch timeout after " + timeout + " seconds"
+								selector : node.selector,
+								target : node.target,
+								value : "catch timeout after " + node.timeout + " seconds"
 							};
 							node.status({
 								fill : "red",
@@ -59,7 +60,7 @@ module.exports = function(RED) {
 							if (msg.error) {
 								node.send(msg);
 							} else {
-								msg.element = msg.driver.findElement(By[selector](target));
+								msg.element = msg.driver.findElement(By[node.selector](node.target));
 								if ( typeof (callback) !== "undefined") {
 									node.status({});
 									callback(msg.element);
@@ -79,7 +80,7 @@ module.exports = function(RED) {
 							callback(msg.element);
 						}
 					}
-				}, waitfor);
+				}, node.waitfor);
 			} catch (ex) {
 				node.status({
 					fill : "red",
@@ -93,32 +94,30 @@ module.exports = function(RED) {
 				node.status({
 					fill : "blue",
 					shape : "dot",
-					text : "delay " + (waitfor / 1000).toFixed(1) + " s"
+					text : "delay " + (node.waitfor / 1000).toFixed(1) + " s"
 				});
 				setTimeout(function() {
 					node.status({});
 					callback(msg.element);
-				}, waitfor);
+				}, node.waitfor);
 			}
 		}
 	}
 
 	function sendErrorMsg(node, msg, text) {
-		var expected = (node.expected && node.expected != "") ? node.expected : msg.expected;
-		getAbsoluteXPath(msg.driver, msg.element).then(function(xpath) {
-			msg.error = {
-				name : node.name,
-				xpath : xpath,
-				expected : expected,
-				value : text
-			};
-			node.status({
-				fill : "red",
-				shape : "ring",
-				text : "unexpected"
-			});
-			node.send(msg);
+		msg.error = {
+			name : node.name,
+			selector : node.selector,
+			target : node.target,
+			expected : (node.expected && node.expected != "") ? node.expected : msg.expected,
+			value : text
+		};
+		node.status({
+			fill : "red",
+			shape : "ring",
+			text : "unexpected"
 		});
+		node.send(msg);
 	};
 
 	function getValueNode(node, msg) {
@@ -138,7 +137,7 @@ module.exports = function(RED) {
 					node.send(msg);
 				}
 			}).catch(function(errorback) {
-				sendErrorMsg(node, msg, "catch timeout after " + (node.timeout ? node.timeout : msg.timeout) + " seconds");
+				sendErrorMsg(node, msg, errorback.message);
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -162,7 +161,7 @@ module.exports = function(RED) {
 					node.send(msg);
 				}
 			}).catch(function(errorback) {
-				sendErrorMsg(node, msg, "catch timeout after " + (node.timeout ? node.timeout : msg.timeout) + " seconds");
+				sendErrorMsg(node, msg, errorback.message);
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -186,7 +185,7 @@ module.exports = function(RED) {
 					node.send(msg);
 				}
 			}).catch(function(errorback) {
-				sendErrorMsg(node, msg, "catch timeout after " + (node.timeout ? node.timeout : msg.timeout) + " seconds");
+				sendErrorMsg(node, msg, errorback.message);
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -208,7 +207,7 @@ module.exports = function(RED) {
 				}
 
 			}).catch(function(errorback) {
-				sendErrorMsg(node, msg, "catch timeout after " + (node.timeout ? node.timeout : msg.timeout) + " seconds");
+				sendErrorMsg(node, msg, errorback.message);
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -228,7 +227,7 @@ module.exports = function(RED) {
 					node.send(msg);
 				}
 			}).catch(function(errorback) {
-				sendErrorMsg(node, msg, "catch timeout after " + (node.timeout ? node.timeout : msg.timeout) + " seconds");
+				sendErrorMsg(node, msg, errorback.message);
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -238,18 +237,22 @@ module.exports = function(RED) {
 	function sendKeysNode(node, msg) {
 		try {
 			var value = (node.value && node.value != "") ? node.value : msg.value;
-			msg.element.sendKeys(value).then(function() {
-				if (!msg.error) {
-					node.status({
-						fill : "green",
-						shape : "ring",
-						text : "done"
-					});
-					delete msg.error;
-					node.send(msg);
-				}
+			msg.element.clear().then(function() {
+				msg.element.sendKeys(value).then(function() {
+					if (!msg.error) {
+						node.status({
+							fill : "green",
+							shape : "ring",
+							text : "done"
+						});
+						delete msg.error;
+						node.send(msg);
+					}
+				}).catch(function(errorback) {
+					sendErrorMsg(node, msg, errorback.message);
+				});
 			}).catch(function(errorback) {
-				sendErrorMsg(node, msg, "catch timeout after " + (node.timeout ? node.timeout : msg.timeout) + " seconds");
+				sendErrorMsg(node, msg, errorback.message);
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -270,7 +273,7 @@ module.exports = function(RED) {
 					node.send(msg);
 				}
 			}).catch(function(errorback) {
-				sendErrorMsg(node, msg, "catch timeout after " + (node.timeout ? node.timeout : msg.timeout) + " seconds");
+				sendErrorMsg(node, msg, errorback.message);
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -278,20 +281,53 @@ module.exports = function(RED) {
 	}
 
 	function takeScreenShotNode(node, msg) {
+		node.filename = msg.filename || node.filename;
+		var cropInFile = function(size, location, srcFile) {
+			if ( typeof (easyimg) !== "undefined") {
+				easyimg.crop({
+					src : srcFile,
+					dst : srcFile,
+					cropwidth : size.width,
+					cropheight : size.height,
+					x : location.x,
+					y : location.y,
+					gravity : 'North-West'
+				}, function(err, stdout, stderr) {
+					if (err) {
+						throw err;
+					}
+				});
+			}
+		};
 		try {
-			msg.element.takeScreenshot().then(function(base64PNG) {
-				if (!msg.error) {
-					msg.image = base64PNG;
-					node.status({
-						fill : "green",
-						shape : "ring",
-						text : "done"
+			msg.element.getSize().then(function(size) {
+				msg.element.getLocation().then(function(location) {
+					msg.driver.takeScreenshot().then(function(base64PNG) {
+						var base64Data = base64PNG.replace(/^data:image\/png;base64,/, "");
+						fs.writeFile(node.filename, base64Data, 'base64', function(err) {
+							if (err) {
+								sendErrorMsg(node, msg, err.message);
+							} else {
+								cropInFile(size, location, node.filename);
+							}
+							if (!msg.error) {
+								node.status({
+									fill : "green",
+									shape : "ring",
+									text : "done"
+								});
+								delete msg.error;
+								node.send(msg);
+							}
+						});
+					}).catch(function(errorback) {
+						sendErrorMsg(node, msg, errorback.message);
 					});
-					delete msg.error;
-					node.send(msg);
-				}
+				}).catch(function(errorback) {
+					sendErrorMsg(node, msg, errorback.message);
+				});
 			}).catch(function(errorback) {
-				sendErrorMsg(node, msg, "catch timeout after " + (node.timeout ? node.timeout : msg.timeout) + " seconds");
+				sendErrorMsg(node, msg, errorback.message);
 			});
 		} catch (ex) {
 			node.send(msg);
@@ -562,7 +598,7 @@ module.exports = function(RED) {
 
 
 	RED.nodes.registerType("set-value", SeleniumSetValueNode);
-	
+
 	function SeleniumSaveValueNode(n) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
@@ -570,7 +606,7 @@ module.exports = function(RED) {
 		this.waitfor = n.waitfor;
 		var node = this;
 		this.on("input", function(msg) {
-			var filename = msg.filename || node.filename;
+			node.filename = msg.filename || node.filename;
 			var data = msg.payload;
 			if (( typeof data === "object") && (!Buffer.isBuffer(data))) {
 				data = JSON.stringify(data);
@@ -580,17 +616,17 @@ module.exports = function(RED) {
 			}
 			if ( typeof data === "number") {
 				data = data.toString();
-			}				
-			fs.writeFile(filename, data, "utf8", function(err) {				
+			}
+			fs.writeFile(node.filename, data, "utf8", function(err) {
 				if (err) {
 					if ((err.code === "ENOENT") && node.createDir) {
-						fs.ensureFile(filename, function(err) {
+						fs.ensureFile(node.filename, function(err) {
 							if (err) {
 								node.error(RED._("file.errors.createfail", {
 									error : err.toString()
 								}), msg);
 							} else {
-								fs.writeFile(filename, data, "utf8", function(err) {
+								fs.writeFile(node.filename, data, "utf8", function(err) {
 									if (err) {
 										node.error(RED._("file.errors.writefail", {
 											error : err.toString()
@@ -613,8 +649,9 @@ module.exports = function(RED) {
 		});
 	}
 
+
 	RED.nodes.registerType("save-value", SeleniumSaveValueNode);
-	
+
 	function SeleniumGetValueNode(n) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
@@ -694,7 +731,11 @@ module.exports = function(RED) {
 	function SeleniumTakeScreenshotNode(n) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
+		this.selector = n.selector;
+		this.timeout = n.timeout;
+		this.target = n.target;
 		this.waitfor = n.waitfor;
+		this.filename = n.filename;
 		var node = this;
 		this.on("input", function(msg) {
 			waitUntilElementLocated(node, msg, function(element) {
@@ -773,7 +814,7 @@ module.exports = function(RED) {
 	}
 
 
-	RED.nodes.registerType("nav-refresh", SeleniumNavRefreshNode);	
+	RED.nodes.registerType("nav-refresh", SeleniumNavRefreshNode);
 
 	RED.httpAdmin.post("/onclick/:id", RED.auth.needsPermission("inject.write"), function(req, res) {
 		var node = RED.nodes.getNode(req.params.id);
