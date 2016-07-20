@@ -27,6 +27,49 @@ module.exports = function(RED) {
 	var isUtf8 = require('is-utf8');
 	var ___msgs = {};
 
+	function saveToFile(node, msg) {
+		node.filename = msg.filename || node.filename;
+		var data = msg.payload;
+		if (( typeof data === "object") && (!Buffer.isBuffer(data))) {
+			data = JSON.stringify(data);
+		}
+		if ( typeof data === "boolean") {
+			data = data.toString();
+		}
+		if ( typeof data === "number") {
+			data = data.toString();
+		}
+		fs.writeFile(node.filename, data, "utf8", function(err) {
+			if (err) {
+				if ((err.code === "ENOENT") && node.createDir) {
+					fs.ensureFile(node.filename, function(err) {
+						if (err) {
+							node.error(RED._("file.errors.createfail", {
+								error : err.toString()
+							}), msg);
+						} else {
+							fs.writeFile(node.filename, data, "utf8", function(err) {
+								if (err) {
+									node.error(RED._("file.errors.writefail", {
+										error : err.toString()
+									}), msg);
+								}
+							});
+						}
+						node.send(msg);
+					});
+				} else {
+					node.error(RED._("file.errors.writefail", {
+						error : err.toString()
+					}), msg);
+					node.send(msg);
+				}
+			} else {
+				node.send(msg);
+			}
+		});
+	}
+
 	function waitUntilElementLocated(node, msg, callback) {
 		node.selector = (node.selector && node.selector != "") ? node.selector : msg.selector;
 		node.target = (node.target && node.target != "") ? node.target : msg.target;
@@ -134,7 +177,11 @@ module.exports = function(RED) {
 						text : "passed"
 					});
 					delete msg.error;
-					node.send(msg);
+					if (msg.filename) {
+						saveToFile(node, msg);
+					} else {
+						node.send(msg);	
+					}
 				}
 			}).catch(function(errorback) {
 				sendErrorMsg(node, msg, errorback.message);
@@ -158,7 +205,11 @@ module.exports = function(RED) {
 						text : "passed"
 					});
 					delete msg.error;
-					node.send(msg);
+					if (msg.filename) {
+						saveToFile(node, msg);
+					} else {
+						node.send(msg);	
+					}
 				}
 			}).catch(function(errorback) {
 				sendErrorMsg(node, msg, errorback.message);
@@ -182,7 +233,11 @@ module.exports = function(RED) {
 						text : "passed"
 					});
 					delete msg.error;
-					node.send(msg);
+					if (msg.filename) {
+						saveToFile(node, msg);
+					} else {
+						node.send(msg);	
+					}
 				}
 			}).catch(function(errorback) {
 				sendErrorMsg(node, msg, errorback.message);
@@ -302,7 +357,7 @@ module.exports = function(RED) {
 		try {
 			msg.element.getSize().then(function(size) {
 				msg.element.getLocation().then(function(location) {
-					msg.driver.takeScreenshot().then(function(base64PNG) {						
+					msg.driver.takeScreenshot().then(function(base64PNG) {
 						if (node.filename.length == 0) {
 							msg.payload = base64PNG;
 							node.status({
@@ -610,58 +665,19 @@ module.exports = function(RED) {
 
 	RED.nodes.registerType("set-value", SeleniumSetValueNode);
 
-	function SeleniumSaveValueNode(n) {
+	function SeleniumToFileNode(n) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
 		this.filename = n.filename;
 		this.waitfor = n.waitfor;
 		var node = this;
 		this.on("input", function(msg) {
-			node.filename = msg.filename || node.filename;
-			var data = msg.payload;
-			if (( typeof data === "object") && (!Buffer.isBuffer(data))) {
-				data = JSON.stringify(data);
-			}
-			if ( typeof data === "boolean") {
-				data = data.toString();
-			}
-			if ( typeof data === "number") {
-				data = data.toString();
-			}
-			fs.writeFile(node.filename, data, "utf8", function(err) {
-				if (err) {
-					if ((err.code === "ENOENT") && node.createDir) {
-						fs.ensureFile(node.filename, function(err) {
-							if (err) {
-								node.error(RED._("file.errors.createfail", {
-									error : err.toString()
-								}), msg);
-							} else {
-								fs.writeFile(node.filename, data, "utf8", function(err) {
-									if (err) {
-										node.error(RED._("file.errors.writefail", {
-											error : err.toString()
-										}), msg);
-									}
-								});
-							}
-							node.send(msg);
-						});
-					} else {
-						node.error(RED._("file.errors.writefail", {
-							error : err.toString()
-						}), msg);
-						node.send(msg);
-					}
-				} else {
-					node.send(msg);
-				}
-			});
+			saveToFile(node, msg);
 		});
 	}
 
 
-	RED.nodes.registerType("save-value", SeleniumSaveValueNode);
+	RED.nodes.registerType("to-file", SeleniumToFileNode);
 
 	function SeleniumGetValueNode(n) {
 		RED.nodes.createNode(this, n);

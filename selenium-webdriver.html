@@ -35,6 +35,13 @@
 
 <script type="text/x-red" data-help-name="open-web">
 	<p>Create an instance of selenium webdriver and connect to the Selenium Server when an event is triggered.</p>
+	<strong>Inputs:</strong>
+	<p><ul>
+		<li><a>Server</a>: specify the selenium server configuration. It could be localhost or remote Selenium Server.</li>
+		<li><a>Web URL</a>: specify the web page to start browsing the targeted application for your test.</li>
+		<li><a>Web title</a>: specify the expected title to compare if set. Otherwise this node will bypass the sanity check operation.</li>
+		<li><a>Timeout</a>: specify the timeout during lookup for the title operation.</li>
+	</ul></p>
 	<strong>Outputs:</strong>
 	<p><code>msg.error</code> When the title is unexpected or cannot find element, this node generates the error with detail information</p>
 	<p><code>msg.driver</code> Always pass webdriver object to the next node for ad-hoc function code.</p>
@@ -504,7 +511,7 @@
 	}); 
 </script>
 
-<script type="text/x-red" data-template-name="save-value">
+<script type="text/x-red" data-template-name="to-file">
 	<div class="form-row">
 		<label for="node-input-name"><i class="fa fa-globe"></i> <span>Name</span></label>
 		<input type="text" id="node-input-name">
@@ -522,13 +529,16 @@
 <script type="text/x-red" data-help-name="save-value">
 	<p>Save a value to the <code>File</code> location with <code>msg.payload</code> content as a string.</p>
 	<strong>Inputs:</strong>
-	<p><code>msg.filename</code> will override the <code>File</code> field if set.</li>
+	<p><ul>
+		<li><a>File</a>: specify the file path to write to. The <code>msg.filename</code> will override the <code>File</code> field if set.</li>
+		<li><a>Wait for</a>: specify the time to wait before looing up. The <code>msg.waitfor</code> will override the <code>Wait For</code> field if set.</li>
+	</ul></p>	
 	<strong>Outputs:</strong>
 	<p><code>msg.error</code> When the file writing operation is failed or unexpected operation occurred.</p>
 </script>
 
 <script type="text/javascript">
-	RED.nodes.registerType('save-value', {
+	RED.nodes.registerType('to-file', {
 		category : 'selenium',
 		defaults : {
 			name : {
@@ -547,7 +557,7 @@
 		outputs : 1,
 		icon : "debug.png",
 		label : function() {
-			return this.name || "Save Value";
+			return this.name || "To File";
 		},
 		labelStyle : function() {
 			return this.name ? "node_label_italic" : "";
@@ -601,6 +611,7 @@
 		<li><a>Timeout</a>: specify the timeout during lookup operation. The <code>msg.timeout</code> will override the <code>Timeout</code> field if set.</li>
 		<li><a>Wait for</a>: specify the time to wait before looing up. The <code>msg.waitfor</code> will override the <code>Wait For</code> field if set.</li>
 	</ul></p>	
+	<p>If the <code>msg.filename</code> is passed through, the <code>msg.payload</code> will be written into the file path.</p>
 	<strong>Outputs:</strong>
 	<p><code>msg.error</code> When the object is unexpected or cannot find element, this node generates the error with detail information</p>
 	<p><code>msg.element</code> If the element is found, it will be passed though the msg object to the next node.</p>
@@ -696,6 +707,7 @@
 		<li><a>Timeout</a>: specify the timeout during lookup operation. The <code>msg.timeout</code> will override the <code>Timeout</code> field if set.</li>
 		<li><a>Wait for</a>: specify the time to wait before looing up. The <code>msg.waitfor</code> will override the <code>Wait For</code> field if set.</li>
 	</ul></p>	
+	<p>If the <code>msg.filename</code> is passed through, the <code>msg.payload</code> will be written into the file path.</p>
 	<strong>Outputs:</strong>
 	<p><code>msg.error</code> When the object is unexpected or cannot find element, this node generates the error with detail information</p>
 	<p><code>msg.element</code> If the element is found, it will be passed though the msg object to the next node.</p>
@@ -789,6 +801,7 @@
 		<li><a>Timeout</a>: specify the timeout during lookup operation. The <code>msg.timeout</code> will override the <code>Timeout</code> field if set.</li>
 		<li><a>Wait for</a>: specify the time to wait before looing up. The <code>msg.waitfor</code> will override the <code>Wait For</code> field if set.</li>
 	</ul></p>	
+	<p>If the <code>msg.filename</code> is passed through, the <code>msg.payload</code> will be written into the file path.</p>
 	<strong>Outputs:</strong>
 	<p><code>msg.error</code> When the object is unexpected or cannot find element, this node generates the error with detail information</p>
 	<p><code>msg.element</code> If the element is found, it will be passed though the msg object to the next node.</p>
@@ -1098,6 +1111,11 @@
 
 <script type="text/x-red" data-help-name="nav-to">
 	<p>Schedules a command to navigate to a new URL.</p>
+	<strong>Inputs:</strong>
+	<p><ul>		
+		<li><a>URL</a>: specify the url to navigate to.</li>		
+		<li><a>Wait For</a>: specify the delay before executing this operation.</li>
+	</ul></p>
 </script>
 
 <script type="text/javascript">
@@ -1142,6 +1160,10 @@
 
 <script type="text/x-red" data-help-name="nav-back">
 	<p>Schedules a command to navigate back to previous page.</p>
+	<strong>Inputs:</strong>
+	<p><ul>
+		<li><a>Wait For</a>: specify the delay before executing this operation.</li>
+	</ul></p>
 </script>
 
 <script type="text/javascript">
@@ -1182,6 +1204,10 @@
 
 <script type="text/x-red" data-help-name="nav-forward">
 	<p>Schedules a command to navigate forward to next page.</p>
+	<strong>Inputs:</strong>
+	<p><ul>
+		<li><a>Wait For</a>: specify the delay before executing this operation.</li>
+	</ul></p>
 </script>
 
 <script type="text/javascript">
@@ -1221,7 +1247,11 @@
 </script>
 
 <script type="text/x-red" data-help-name="nav-refresh">
-	<p>Schedules a command to navigate forward to next page.</p>
+	<p>Schedules a command to refreash the current page.</p>
+	<strong>Inputs:</strong>
+	<p><ul>
+		<li><a>Wait For</a>: specify the delay before executing this operation.</li>
+	</ul></p>
 </script>
 
 <script type="text/javascript">
