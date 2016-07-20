@@ -303,23 +303,34 @@ module.exports = function(RED) {
 			msg.element.getSize().then(function(size) {
 				msg.element.getLocation().then(function(location) {
 					msg.driver.takeScreenshot().then(function(base64PNG) {
-						var base64Data = base64PNG.replace(/^data:image\/png;base64,/, "");
-						fs.writeFile(node.filename, base64Data, 'base64', function(err) {
-							if (err) {
-								sendErrorMsg(node, msg, err.message);
-							} else {
-								cropInFile(size, location, node.filename);
-							}
-							if (!msg.error) {
-								node.status({
-									fill : "green",
-									shape : "ring",
-									text : "done"
-								});
-								delete msg.error;
-								node.send(msg);
-							}
-						});
+						if (!node.filename || node.filename == "") {
+							msg.image = base64Data;
+							node.status({
+								fill : "green",
+								shape : "ring",
+								text : "done"
+							});
+							delete msg.error;
+							node.send(msg);
+						} else {
+							var base64Data = base64PNG.replace(/^data:image\/png;base64,/, "");
+							fs.writeFile(node.filename, base64Data, 'base64', function(err) {
+								if (err) {
+									sendErrorMsg(node, msg, err.message);
+								} else {
+									cropInFile(size, location, node.filename);
+								}
+								if (!msg.error) {
+									node.status({
+										fill : "green",
+										shape : "ring",
+										text : "done"
+									});
+									delete msg.error;
+									node.send(msg);
+								}
+							});
+						}
 					}).catch(function(errorback) {
 						sendErrorMsg(node, msg, errorback.message);
 					});
