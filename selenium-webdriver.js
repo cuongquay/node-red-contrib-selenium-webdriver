@@ -513,7 +513,7 @@ module.exports = function(RED) {
 				});
 			});
 		} else {
-			node.error(RED._("common.status.error"));
+			node.error("missing configuration");
 		}
 		this.on("input", function(msg) {
 			node.serverObj.connect().then(function(webdriver) {

@@ -1316,10 +1316,16 @@
 			<div class="form-row node-input-remoteurl">
 				<label for="node-config-input-remoteurl"><i class="fa fa-globe"></i> <span>Remote Url</span></label>
 				<input class="input-append-left" type="text" id="node-config-input-remoteurl" placeholder="http://localhost:4444/wd/hub" style="width: 40%;" >
-			</div>
+			</div>			
 			<div class="form-row">
-				<label for="node-config-input-browser"><i class="fa fa-tag"></i> <span>Browser</span></label>
-				<input type="text" id="node-config-input-browser">
+				<label for="node-config-input-browser"><i class="fa fa-empire"></i> <span>Browser</span></label>
+				<select id="node-config-input-browser" style="width:125px !important">
+					<option value="chrome">Chrome</option>
+					<option value="firefox">Firefox</option>
+					<option value="safari">Safari</option>
+					<option value="opera">Opera</option>
+					<option value="ie">IE</option>
+				</select>
 			</div>
 		</div>
 	</div>
@@ -1351,7 +1357,7 @@
 			});
 			tabs.addTab({
 				id : "selenium-server-tab-connection",
-				label : this._("mqtt.tabs-label.connection")
+				label : "Selenium Server"
 			});
 			setTimeout(function() {
 				tabs.resize();
