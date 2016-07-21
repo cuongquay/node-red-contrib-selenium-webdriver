@@ -513,7 +513,7 @@ module.exports = function(RED) {
 				});
 			});
 		} else {
-			node.error("missing configuration");
+			node.error("!configuration");
 		}
 		this.on("input", function(msg) {
 			node.serverObj.connect().then(function(webdriver) {
