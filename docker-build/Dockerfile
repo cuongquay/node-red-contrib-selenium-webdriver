@@ -7,6 +7,7 @@ RUN apt-get update
 
 RUN npm install -g --unsafe-perm node-red
 RUN cd /usr/local/lib/node_modules/node-red/ && npm install node-red-contrib-selenium-webdriver
+RUN apt-get update -y && apt-get install -y supervisor
 
 RUN mkdir -p /var/log/supervisor
 
