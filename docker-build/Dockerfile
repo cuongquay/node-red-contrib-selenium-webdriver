@@ -17,6 +17,9 @@ ADD supervisord.conf /etc/supervisor/supervisor.conf
 # Add service defintions for Xvfb, Selenium and Protractor runner
 ADD supervisord/*.conf /etc/supervisor/conf.d/
 
+ADD settings.js /root/.node-red/settings.js
+ADD flows.json /root/.node-red/flows.jsson
+
 # expose port
 EXPOSE 1880
 
