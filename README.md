@@ -30,8 +30,8 @@ npm install -g --unsafe-perm node-red
 
 cd ~/.node-red && npm install node-red-contrib-selenium-webdriver
 
-Automated Docker Environment
-============================
+Automated UI /w Docker Environment
+==================================
 
 1. Install Docker Tool Box from https://www.docker.com/products/docker-toolbox
 
