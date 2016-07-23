@@ -5,6 +5,9 @@ The Node-RED selenium webdriver nodes which allow you to create selenium test fl
 [![npm](https://img.shields.io/npm/dm/node-red-contrib-selenium-webdriver.svg?maxAge=2592000)]()
 [![Docker Pulls](https://img.shields.io/docker/pulls/cuongquay/node-red-ui-automation.svg?maxAge=2592000)]()
 
+Local Development Environment
+=============================
+
 **Install Selenium Server**
 
 npm install -g webdriver-manager
@@ -26,6 +29,46 @@ webdriver-manager start
 npm install -g --unsafe-perm node-red
 
 cd ~/.node-red && npm install node-red-contrib-selenium-webdriver
+
+Automated Docker Environment
+============================
+# node-red-ui-automation
+The automation framework which allows to create UI test flow by visual IDE tool for web application
+
+1. Install Docker Tool Box from https://www.docker.com/products/docker-toolbox
+
+2. Create **docker-compose.xml** to your local folder
+
+   ```
+   version: '2'
+   services:
+     node-red:
+       image: cuongquay/node-red-ui-automation
+       ports:
+        - 1880:1880
+     selenium-hub:
+       image: selenium/hub
+       ports:
+        - 4444:4444
+     node-chrome:
+       image: selenium/node-chrome
+       depends_on:
+        - selenium-hub
+       environment:
+        - HUB_PORT_4444_TCP_ADDR=selenium-hub
+```
+
+3. Run with **docker-compose up** command
+
+   ```
+   eval "$(docker-machine env default)"
+   docker-compose up -d --force-recreate
+   ```
+
+4. Launch Kitematic, choose **node-red-ui-automation** container and look for the Access URL from HOME tab. 
+
+5. Browsing the application by http://ACCESS_URL:1880/ (usually it's http://192.168.99.100:1880/)
+
 
 **Example flow**
 
