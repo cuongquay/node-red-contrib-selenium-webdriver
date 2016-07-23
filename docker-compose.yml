@@ -1,0 +1,16 @@
+version: '2'
+services:
+  node-red:
+    image: cuongquay/node-red-ui-automation
+    ports:
+     - 1880:1880
+  selenium-hub:
+    image: selenium/hub
+    ports:
+     - 4444:4444
+  node-chrome:
+    image: selenium/node-chrome
+    depends_on:
+     - selenium-hub
+    environment:
+     - HUB_PORT_4444_TCP_ADDR=selenium-hub
