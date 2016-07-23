@@ -1,5 +1,5 @@
 # node-red-contrib-selenium-webdriver
-The Node-RED selenium webdriver nodes which allow you to create selenium test flow by visual IDE tool
+The automation framework which allows to create UI test flow by visual IDE tool for web application
 
 [![npm version](https://badge.fury.io/js/node-red-contrib-selenium-webdriver.svg)](https://badge.fury.io/js/node-red-contrib-selenium-webdriver)
 [![npm](https://img.shields.io/npm/dm/node-red-contrib-selenium-webdriver.svg?maxAge=2592000)]()
@@ -32,8 +32,6 @@ cd ~/.node-red && npm install node-red-contrib-selenium-webdriver
 
 Automated Docker Environment
 ============================
-# node-red-ui-automation
-The automation framework which allows to create UI test flow by visual IDE tool for web application
 
 1. Install Docker Tool Box from https://www.docker.com/products/docker-toolbox
 
