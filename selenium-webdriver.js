@@ -428,7 +428,7 @@ module.exports = function(RED) {
 		this.usecount = 0;
 		// Config node state
 		this.remoteurl = n.remoteurl;
-		this.browser = n.browser;
+		
 
 		var node = this;
 		this.register = function() {
@@ -441,16 +441,16 @@ module.exports = function(RED) {
 			}
 		};
 
-		this.connect = function() {
+		this.connect = function(browser) {
 			var deferred = q.defer();
 			if (!node.connected && !node.connecting) {
 				node.connecting = true;
 				var url = require('url').parse(node.remoteurl);
 				isReachable(url.host, function(error, reachable) {
 					if (!error && reachable) {
-						node.driver = new webdriver.Builder().forBrowser(node.browser).usingServer(node.remoteurl);
+						node.driver = new webdriver.Builder().forBrowser(browser).usingServer(node.remoteurl);
 						node.log(RED._("connected", {
-							server : (node.browser ? node.browser + "@" : "") + node.remoteurl
+							server : (browser ? browser + "@" : "") + node.remoteurl
 						}));
 						node.connected = true;
 						node.emit('connected');
@@ -489,6 +489,7 @@ module.exports = function(RED) {
 		RED.nodes.createNode(this, n);
 		this.name = n.name;
 		this.server = n.server;
+		this.browser = n.browser;
 		this.weburl = n.weburl;
 		this.width = n.width;
 		this.height = n.height;
@@ -499,7 +500,7 @@ module.exports = function(RED) {
 		var node = this;
 		if (node.serverObj) {
 			node.serverObj.register();
-			node.serverObj.connect().then(function(webdriver) {
+			node.serverObj.connect(node.browser).then(function(webdriver) {
 				node.status({
 					fill : "green",
 					shape : "ring",
@@ -516,7 +517,7 @@ module.exports = function(RED) {
 			node.error("!configuration");
 		}
 		this.on("input", function(msg) {
-			node.serverObj.connect().then(function(webdriver) {
+			node.serverObj.connect(node.browser).then(function(webdriver) {
 				function setWindowSize(driver, title) {
 					if (node.maximized) {
 						driver.manage().window().maximize().then(function() {

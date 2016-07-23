@@ -8,6 +8,16 @@
 		<input type="text" id="node-input-name">
 	</div>
 	<div class="form-row">
+        <label for="node-input-browser"><i class="fa fa-empire"></i> <span>Browser</span></label>
+        <select id="node-input-browser" style="width:125px !important">
+            <option value="chrome">Chrome</option>
+            <option value="firefox">Firefox</option>
+            <option value="safari">Safari</option>
+            <option value="opera">Opera</option>
+            <option value="ie">IE</option>
+        </select>
+    </div>
+	<div class="form-row">
 		<label for="node-input-weburl"><i class="fa fa-empire"></i> <span>Web URL</span></label>
 		<input type="text" id="node-input-weburl">
 	</div>
@@ -56,6 +66,10 @@
 			name : {
 				value : ""
 			},
+            browser : {
+                value : "chrome",
+                required : true
+            },
 			weburl : {
 				value : "https://www.google.com/",
 				required : true
@@ -1316,16 +1330,6 @@
 			<div class="form-row node-input-remoteurl">
 				<label for="node-config-input-remoteurl"><i class="fa fa-globe"></i> <span>Remote Url</span></label>
 				<input class="input-append-left" type="text" id="node-config-input-remoteurl" placeholder="http://localhost:4444/wd/hub" style="width: 40%;" >
-			</div>			
-			<div class="form-row">
-				<label for="node-config-input-browser"><i class="fa fa-empire"></i> <span>Browser</span></label>
-				<select id="node-config-input-browser" style="width:125px !important">
-					<option value="chrome">Chrome</option>
-					<option value="firefox">Firefox</option>
-					<option value="safari">Safari</option>
-					<option value="opera">Opera</option>
-					<option value="ie">IE</option>
-				</select>
 			</div>
 		</div>
 	</div>
@@ -1337,10 +1341,6 @@
 		defaults : {
 			remoteurl : {
 				value : "http://localhost:4444/wd/hub",
-				required : true
-			},
-			browser : {
-				value : "chrome",
 				required : true
 			}
 		},
