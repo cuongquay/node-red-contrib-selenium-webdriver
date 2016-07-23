@@ -583,6 +583,11 @@ module.exports = function(RED) {
 			setTimeout(function() {
 				msg.driver.quit();
 				node.send(msg);
+				node.status({
+                    fill : "green",
+                    shape : "ring",
+                    text : "closed"
+                });
 			}, node.waitfor);
 		});
 	}
