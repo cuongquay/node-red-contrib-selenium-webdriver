@@ -3,7 +3,7 @@ The Node-RED selenium webdriver nodes which allow you to create selenium test fl
 
 [![npm version](https://badge.fury.io/js/node-red-contrib-selenium-webdriver.svg)](https://badge.fury.io/js/node-red-contrib-selenium-webdriver)
 [![npm](https://img.shields.io/npm/dm/node-red-contrib-selenium-webdriver.svg?maxAge=2592000)]()
-[![Docker Pulls](https://img.shields.io/docker/pulls/mashape/node-red-ui-automation.svg?maxAge=2592000)]()
+[![Docker Pulls](https://img.shields.io/docker/pulls/cuongquay/node-red-ui-automation.svg?maxAge=2592000)]()
 
 **Install Selenium Server**
 
