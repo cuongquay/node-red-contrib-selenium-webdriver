@@ -1,3 +1,4 @@
+# node-red-contrib-selenium-webdriver
 The automation framework which allows to create UI test flow by visual IDE tool for web application
 
 [![npm version](https://badge.fury.io/js/node-red-contrib-selenium-webdriver.svg)](https://badge.fury.io/js/node-red-contrib-selenium-webdriver)
