@@ -76,7 +76,10 @@ module.exports = function(RED) {
 		node.timeout = (node.timeout && node.timeout != "") ? node.timeout : msg.timeout;
 		node.waitfor = msg.waitfor || node.waitfor;
 		node.status({});
-		if (msg.error) {
+		if (msg.refresh) {
+			node.status({});
+			node.send(msg);
+		} else if (msg.error) {
 			node.send(msg);
 		} else if (node.target && node.target != "") {
 			try {
@@ -428,7 +431,6 @@ module.exports = function(RED) {
 		this.usecount = 0;
 		// Config node state
 		this.remoteurl = n.remoteurl;
-		
 
 		var node = this;
 		this.register = function() {
@@ -450,7 +452,7 @@ module.exports = function(RED) {
 					if (!error && reachable) {
 						node.driver = new webdriver.Builder().forBrowser(browser).usingServer(node.remoteurl);
 						node.log(RED._("connected", {
-							server : (browser ? browser + "@" : "") + node.remoteurl
+							server : ( browser ? browser + "@" : "") + node.remoteurl
 						}));
 						node.connected = true;
 						node.emit('connected');
@@ -517,52 +519,58 @@ module.exports = function(RED) {
 			node.error("!configuration");
 		}
 		this.on("input", function(msg) {
-			node.serverObj.connect(node.browser).then(function(webdriver) {
-				function setWindowSize(driver, title) {
-					if (node.maximized) {
-						driver.manage().window().maximize().then(function() {
-							msg.driver = driver;
-							msg.payload = title;
-							node.send(msg);
-						});
-					} else {
-						driver.manage().window().setSize(parseInt(node.width), parseInt(node.height)).then(function() {
-							msg.driver = driver;
-							msg.payload = title;
-							node.send(msg);
+			if (msg.topic == "RESET") {
+				msg.refresh = true;
+				node.status({});
+				node.send(msg);
+			} else {
+				node.serverObj.connect(node.browser).then(function(webdriver) {
+					function setWindowSize(driver, title) {
+						if (node.maximized) {
+							driver.manage().window().maximize().then(function() {
+								msg.driver = driver;
+								msg.payload = title;
+								node.send(msg);
+							});
+						} else {
+							driver.manage().window().setSize(parseInt(node.width), parseInt(node.height)).then(function() {
+								msg.driver = driver;
+								msg.payload = title;
+								node.send(msg);
+							});
+						}
+						node.status({
+							fill : "green",
+							shape : "ring",
+							text : "connected"
 						});
 					}
-					node.status({
-						fill : "green",
-						shape : "ring",
-						text : "connected"
-					});
-				}
 
-				var driver = webdriver.build();
-				driver.get(node.weburl);
-				if (node.webtitle) {
-					driver.wait(until.titleIs(node.webtitle), parseInt(node.timeout)).catch(function(errorback) {
-						node.status({
-							fill : "yellow",
-							shape : "ring",
-							text : "unexpected"
+					var driver = webdriver.build();
+					driver.get(node.weburl);
+					if (node.webtitle) {
+						driver.wait(until.titleIs(node.webtitle), parseInt(node.timeout)).catch(function(errorback) {
+							node.status({
+								fill : "yellow",
+								shape : "ring",
+								text : "unexpected"
+							});
+						}).then(function() {
+							driver.getTitle().then(function(title) {
+								setWindowSize(driver, title);
+							});
 						});
-					}).then(function() {
-						driver.getTitle().then(function(title) {
-							setWindowSize(driver, title);
-						});
+					} else {
+						setWindowSize(driver);
+					}
+				}, function(error) {
+					node.status({
+						fill : "red",
+						shape : "ring",
+						text : "disconnected"
 					});
-				} else {
-					setWindowSize(driver);
-				}
-			}, function(error) {
-				node.status({
-					fill : "red",
-					shape : "ring",
-					text : "disconnected"
 				});
-			});
+			}
 		});
 		this.on('close', function() {
 			if (node.serverObj) {
@@ -580,15 +588,21 @@ module.exports = function(RED) {
 		this.waitfor = n.waitfor || 0;
 		var node = this;
 		this.on("input", function(msg) {
-			setTimeout(function() {
-				msg.driver.quit();
+			if (msg.refresh) {
+				msg.refresh = false;
+				node.status({});
 				node.send(msg);
-				node.status({
-                    fill : "green",
-                    shape : "ring",
-                    text : "closed"
-                });
-			}, node.waitfor);
+			} else {
+				setTimeout(function() {
+					msg.driver.quit();
+					node.send(msg);
+					node.status({
+						fill : "green",
+						shape : "ring",
+						text : "closed"
+					});
+				}, node.waitfor);
+			}
 		});
 	}
 
@@ -695,7 +709,12 @@ module.exports = function(RED) {
 		this.waitfor = n.waitfor;
 		var node = this;
 		this.on("input", function(msg) {
-			saveToFile(node, msg);
+			if (msg.refresh) {
+				node.status({});
+				node.send(msg);
+			} else {
+				saveToFile(node, msg);
+			}
 		});
 	}
 
@@ -807,7 +826,10 @@ module.exports = function(RED) {
 		this.waitfor = n.waitfor;
 		var node = this;
 		this.on("input", function(msg) {
-			if (msg.driver) {
+			if (msg.refresh) {
+				node.status({});
+				node.send(msg);
+			} else if (msg.driver) {
 				setTimeout(function() {
 					msg.driver.navigate().to(node.url).then(function() {
 						node.send(msg);
@@ -826,7 +848,10 @@ module.exports = function(RED) {
 		this.waitfor = n.waitfor;
 		var node = this;
 		this.on("input", function(msg) {
-			if (msg.driver) {
+			if (msg.refresh) {
+				node.status({});
+				node.send(msg);
+			} else if (msg.driver) {
 				setTimeout(function() {
 					msg.driver.navigate().back().then(function() {
 						node.send(msg);
@@ -845,7 +870,10 @@ module.exports = function(RED) {
 		this.waitfor = n.waitfor;
 		var node = this;
 		this.on("input", function(msg) {
-			if (msg.driver) {
+			if (msg.refresh) {
+				node.status({});
+				node.send(msg);
+			} else if (msg.driver) {
 				setTimeout(function() {
 					msg.driver.navigate().forward().then(function() {
 						node.send(msg);
@@ -864,7 +892,10 @@ module.exports = function(RED) {
 		this.waitfor = n.waitfor;
 		var node = this;
 		this.on("input", function(msg) {
-			if (msg.driver) {
+			if (msg.refresh) {
+				node.status({});
+				node.send(msg);
+			} else if (msg.driver) {
 				setTimeout(function() {
 					msg.driver.navigate().refresh().then(function() {
 						node.send(msg);
