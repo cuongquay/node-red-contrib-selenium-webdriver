@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  **/
+//$("head").append("<link>");var css = $("head").children(":last");css.attr({rel:  "stylesheet",type: "text/css",href: "https://cdn.rawgit.com/kamranahmedse/jquery-toast-plugin/master/dist/jquery.toast.min.css"});$.getScript("https://cdn.rawgit.com/kamranahmedse/jquery-toast-plugin/master/dist/jquery.toast.min.js")
 
 module.exports = function(RED) {
 	"use strict";
