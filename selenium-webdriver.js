@@ -23,8 +23,8 @@ module.exports = function(RED) {
 	var easyimg = require("easyimage");
 	var isReachable = require('is-reachable');
 	var webdriver = require("selenium-webdriver"),
-	    By = webdriver.By,
-	    until = webdriver.until;
+		By = webdriver.By,
+		until = webdriver.until;
 	var isUtf8 = require('is-utf8');
 	var ___msgs = {};
 
@@ -445,32 +445,37 @@ module.exports = function(RED) {
 		};
 
 		this.connect = function(browser) {
-			var deferred = q.defer();
 			if (!node.connected && !node.connecting) {
 				node.connecting = true;
 				var url = require('url').parse(node.remoteurl);
-				isReachable(url.host, function(error, reachable) {
-					if (!error && reachable) {
-						node.driver = new webdriver.Builder().forBrowser(browser).usingServer(node.remoteurl);
-						node.log(RED._("connected", {
-							server : ( browser ? browser + "@" : "") + node.remoteurl
-						}));
-						node.connected = true;
-						node.emit('connected');
-						deferred.resolve(node.driver);
-					} else {
+				return isReachable(url.host)
+					.then(reachable => {
+						if (reachable) {
+							node.driver = new webdriver.Builder().forBrowser(browser).usingServer(node.remoteurl);
+							node.log(RED._("connected", {
+								server: ( browser ? browser + "@" : "") + node.remoteurl
+							}));
+							node.connected = true;
+							node.emit('connected');
+							return node.driver;
+						} else {
+							throw "Cannot connect to selenium";
+						}
+					})
+					.catch(error => {
 						node.connecting = false;
 						node.connected = false;
-						deferred.reject({
-							Error : "Invalid configuration."
-						});
-					}
-				});
+						throw {
+							Error: "Invalid configuration: " + error
+						};
+					});
 			} else {
-				if (node.driver)
-					deferred.resolve(node.driver);
+				if (node.driver) {
+					return q(node.driver);
+				} else {
+					return q.reject({ Error : "No driver available" });
+				}
 			}
-			return deferred.promise;
 		};
 
 		this.on('close', function(closecomplete) {
